@@ -1,0 +1,17 @@
+FC      = mpif90
+LD      = $(FC)
+F90     = $(FC)
+SWP     =
+RM      = /bin/rm -f
+MP      =
+OLEVEL  = -O3 -xAVX -fno-alias -no-prec-div -no-prec-sqrt -ip
+#~ OLEVEL       = -O3 -unroll
+#OLEVEL = -O3
+#FOPTS   = -r8 -g
+FOPTS  = -r8 -ftrapuv -check bounds -g -lstdc++
+FFLAGS  = $(FOPTS) $(OLEVEL)
+LIBDIR = $(HOME)/My_libs
+LIBS    = $(LIBDIR)/lib/libp3dfft.a $(LIBDIR)/lib/libsprng.a -mkl
+INCLUDE = -I$(LIBDIR)/include
+LDFLAGS = $(FOPTS) $(OLEVEL)
+PROF    =

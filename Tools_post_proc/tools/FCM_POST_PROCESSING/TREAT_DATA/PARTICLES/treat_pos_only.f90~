@@ -1,0 +1,344 @@
+!!====================================================================
+!!
+!!
+!!====================================================================
+
+Program MPIIO_TO_ASCII
+
+!!====================================================================
+!!
+!!
+!!====================================================================
+
+use MPI
+
+implicit none
+
+
+!--------------------------------------------------------------------
+! ARRAYS STATEMENT
+!--------------------------------------------------------------------
+
+!- File name 
+character(len=40) :: FILENAME
+!- String for time
+character(len=10) :: FILE_EXT
+
+! Physical Time
+real(kind=8), allocatable, dimension(:) :: TIME_VEC
+
+!!- Vraiables from direct access files
+! Read Lagrangian Data
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS_NOPER
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_VEL
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_ROT
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_ORIENT
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_PSWIM
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_P2
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_P3
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_SIJ
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_RADII
+
+! Lagrangian Data along time
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS_TIME
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS_NOPER_TIME
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_VEL_TIME
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_ROT_TIME
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_ORIENT_TIME
+real(kind=8), allocatable, dimension(:,:,:,:) :: FCM_ROT_MAT_TIME
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_PSWIM_TIME
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_PSWIM_TIME_SPH
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_PSWIM_TIME_SPH_PMEAN
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_P2_TIME
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_P3_TIME
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_SIJ_TIME
+
+real(kind=8), allocatable, dimension(:,:) :: MEAN_PSWIM_TIME
+real(kind=8) :: PPI
+
+!!- Dicrestization points in each direction
+integer :: NX, NY, NZ
+real(kind=8) :: LXMAX, LYMAX, LZMAX
+
+!!- Swilmming velocity (radii/s)
+real(kind=8) :: VSW
+
+!!- Minimal/Maximal radius, to compute dimensionless time
+real(kind=8) :: RADMIN
+real(kind=8) :: RADMAX
+
+!!- Volume fraction
+real(kind=8) :: VOL_FRAC
+
+!!- Asymptotic Value Mean Orientation vector
+real(kind=8), dimension(3) :: PINF
+
+!! Flags for Brownian + Wall
+integer :: FLOW_TYPE, BC
+
+!!- Number of boxes in ones direction to compute local statistics
+integer :: NBOX_DIR
+
+!!- Particle number temporary
+integer :: NPART, NPSTAT, NSPHERE, NELLIPSOID
+
+!!- Temporary dimension integers
+integer :: DIM2, DIM3
+
+!!- Number of time iterations
+integer :: NCYCLEMAX
+
+!!- Time-step
+real(kind=8) :: DTIME
+
+!!- Dump for fluid solution
+integer :: FOUT1
+
+!!- Dump for particle solution
+integer :: FOUT3
+
+!!- Number of dumps to read
+integer :: NB_DUMP_FILES_FLUID
+integer :: NB_DUMP_FILES_PART
+!! Starting dump to treat correlations
+integer :: SAVE_START
+
+!!- Flag if quaternions are used or orientation vectors
+integer :: USE_QUAT
+
+!- Time 
+integer :: TIME
+
+!- Index
+integer :: I, J, K, IJK, IND
+
+!- Integers to signalize a non-existing file
+integer :: ERR_STAT, &
+           ERR_INFO, &
+           ERR_FILE_POS, &
+           ERR_FILE_POS_NOPER, &
+           ERR_FILE_VEL, &
+           ERR_FILE_ROT, &
+           ERR_FILE_ORIENT, &
+           ERR_FILE_SWIM, &
+           ERR_FILE_P2, &
+           ERR_FILE_P3, &
+           ERR_FILE_STRESS, &
+           ERR_FILE_RADII
+	   
+!!- Integers to chose which treatment to perform
+integer :: TREAT_VEL
+integer :: TREAT_STRESS
+integer :: TREAT_CORREL_POS
+integer :: TREAT_CORREL_ORIENT
+integer :: TREAT_DIFF
+
+!-  MPI Variables
+integer :: IERR,NPROC,MYID
+
+
+
+!!--------------------------------------------------------------------
+!! 0.0 MPI World initiation
+!!--------------------------------------------------------------------
+call MPI_INIT(IERR)
+call MPI_COMM_SIZE(MPI_COMM_WORLD,NPROC,IERR)
+call MPI_COMM_RANK(MPI_COMM_WORLD,MYID,IERR)
+
+
+PPI = 4.0*atan(1.0)
+
+!---------------------------------------------------------------------
+!=====================================================================
+! 0. READ INPUT, PARAMETERS AND ALLOCATION
+!=====================================================================
+
+!- Open file
+open(unit=100,file='stat_choice.input',status='old', iostat=ERR_STAT)
+
+if(ERR_STAT /= 0) then
+
+ print *, "CPU -- ", MYID, ":: ERROR: Input data file stat_choice.input open error!"
+ call MPI_FINALIZE(ERR_STAT)
+ call abort()
+else
+
+ read(100,*), TREAT_DIFF
+ read(100,*), TREAT_VEL
+ read(100,*), TREAT_STRESS
+ read(100,*), TREAT_CORREL_POS
+ read(100,*), TREAT_CORREL_ORIENT
+ read(100,*), NPSTAT
+ read(100,*), SAVE_START
+ read(100,*), PINF(1), PINF(2), PINF(3)
+ read(100,*), NBOX_DIR
+ 
+
+end if
+close(100)
+
+
+
+!- Open file
+open(unit=200,file='fcm_run.info',status='old', iostat=ERR_INFO)
+
+if(ERR_INFO /= 0) then
+
+ print *, "CPU -- ", MYID, ":: ERROR: Input data file fcm_run.info open error!"
+ call MPI_FINALIZE(ERR_INFO)
+ call abort()
+else
+
+ read(200,*), LXMAX
+ read(200,*), LYMAX
+ read(200,*), LZMAX
+ read(200,*), NX
+ read(200,*), NY
+ read(200,*), NZ
+ read(200,*), DTIME
+ read(200,*), NCYCLEMAX
+ read(200,*), FOUT1
+ read(200,*), FOUT3
+ read(200,*), NPART
+ read(200,*), NSPHERE
+ read(200,*), NELLIPSOID
+ read(200,*), VSW
+ read(200,*), RADMAX
+ read(200,*), USE_QUAT
+ read(200,*)
+ read(200,*), FLOW_TYPE
+ read(200,*), BC
+
+end if
+
+close(200)
+
+
+
+
+NB_DUMP_FILES_PART= (NCYCLEMAX)/FOUT3
+print*,'NB_DUMP_FILES_PART + 1 = ' ,  NB_DUMP_FILES_PART + 1
+
+
+allocate( TIME_VEC(NB_DUMP_FILES_PART+1) )
+
+allocate( FCM_RADII(NPART,3,1) )
+
+allocate( FCM_POS(NPART,3,1) )
+allocate( FCM_POS_TIME(NB_DUMP_FILES_PART+1,NPART,3) )
+
+
+
+
+
+print*,' '
+print*,'-------------------------START READING---------------------- '
+print*,' '
+!=====================================================================
+! 1. READ LAGRANGIAN DATA AT ENDING TIME
+!=====================================================================
+
+FILENAME='FCM_PART_RADII.end'
+call READ_VAR_MPIIO(NPART,3,1,FCM_RADII,FILENAME,ERR_FILE_RADII)
+
+if (ERR_FILE_RADII==0) then
+ RADMIN = minval(FCM_RADII)
+ RADMAX = maxval(FCM_RADII)
+
+ VOL_FRAC = 0.0
+ do I = 1, NPART 
+  VOL_FRAC = VOL_FRAC &
+           + 4.0/3.0*PPI*FCM_RADII(I,1,1)*FCM_RADII(I,2,1)*FCM_RADII(I,3,1) &
+           / (LXMAX*LYMAX*LZMAX)
+ end do
+
+ print*,'VOLUME FRACTION = ', VOL_FRAC
+else
+ VOL_FRAC = 0.0
+ RADMIN = VSW/2.0
+ RADMAX = VSW
+end if
+
+FILENAME='FCM_PART_POS.end'
+call READ_VAR_MPIIO(NPART,3,1,FCM_POS,FILENAME,ERR_FILE_POS)
+FCM_POS_TIME(NB_DUMP_FILES_PART+1,:,:) = FCM_POS(:,:,1)
+
+TIME_VEC(NB_DUMP_FILES_PART+1) = (real(NCYCLEMAX)-1.0)*DTIME*VSW/RADMAX
+
+
+
+!=====================================================================
+! 2. READ INTERMEDIATE LAGRANGIAN DATA
+!=====================================================================
+
+do IND=1,NB_DUMP_FILES_PART
+
+
+
+ if ((mod(IND,NB_DUMP_FILES_PART/5)==0).or.(IND==NB_DUMP_FILES_PART)) then
+  print*, IND, '/', NB_DUMP_FILES_PART+1, 'FILES READ'
+ end if
+ 
+
+ TIME = (IND-1)*FOUT3 + 1
+ TIME_VEC(IND) = real(TIME)*DTIME*VSW/RADMAX
+ 
+ write(FILE_EXT,10205) TIME
+ 
+ write(FILENAME,10101)'FCM_PART_POS_t',trim(FILE_EXT),'.bin'
+ call READ_VAR_MPIIO(NPART,3,1,FCM_POS,FILENAME,ERR_FILE_POS) 
+ FCM_POS_TIME(IND,:,:) = FCM_POS(:,:,1)
+
+end do
+
+
+print*,' '
+print*,'-------------------------END READING---------------------- '
+print*,' '
+
+
+!=====================================================================
+! 3. TREAT DATA
+!=====================================================================
+
+if (BC == 2) then
+ call HEIGHT_DISTRIB(NB_DUMP_FILES_PART+1, &
+                     NPART, &
+		     LXMAX, &
+                     RADMAX, &
+                     FCM_POS_TIME )
+end if
+
+print*,' '
+print*,'PARTICLE POST PROCESSING--->DONE'
+print*,' '
+!- Free MPI environement
+call MPI_FINALIZE (ierr)
+
+!!====================================================================
+1999 format ('VARIABLES = "x", "y", "z", "u", "v", "w"')
+2000 format ('VARIABLES = "x", "y", "z", "u", "v", "w", "n", "p"')
+2001 format ('ZONE F=POINT I=',i4,' J=',i4,' K=',i4,' SOLUTIONTIME=',e12.5)
+
+1998 format ('VARIABLES = "xp noper", "yp noper", "zp noper"')
+2002 format ('VARIABLES = "xp", "yp", "zp"')
+2003 format ('VARIABLES = "up", "vp", "wp"')
+2004 format ('VARIABLES = "ompx", "ompy", "ompz"')
+2005 format ('VARIABLES = "quat1", "quat2", "quat3", "quat4"')
+2006 format ('VARIABLES = "pswimx", "pswimy", "pswimz"')
+2007 format ('VARIABLES = "Sxx", "Sxy", "Sxz", "Syy", "Syz"')
+2008 format ('VARIABLES = "a1", "a2", "a3"')
+
+2010 format ('NPART_FULL = ', i4)
+2011 format ('NPART_FULL = ')
+
+10200 format (A)
+10201 format (A,I1)
+10202 format (A,I2)
+10203 format (A,I3)
+10204 format (A,I4)
+10205 format (I8.8)
+10101 format (A,A,A)
+
+end program MPIIO_TO_ASCII

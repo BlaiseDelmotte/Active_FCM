@@ -1,0 +1,159 @@
+ !!====================================================================
+!!
+!! 
+!!> @brief
+!!> Routine computing the repulsive force to avoid overlapping with 
+!!> bucket sorting strategy (cf Keaveny listed list)
+!! Date :  10/01/2014
+!!
+!!
+!!> @author 
+!!> Blaise Delmotte
+!!====================================================================
+
+subroutine COMPUTE_CONNECTIVITY(NPART, &
+																																	MYID, &
+																																	IERR, &
+                                BOXSIZE, &
+                                LXMAX, &
+                                LYMAX, &
+                                LZMAX, &
+                                POSI, &
+                                CONNECTIVITY)
+
+!!====================================================================
+!! 
+!!====================================================================
+!! Forcing: 
+!!------------------------------
+!!====================================================================
+
+
+use BUCKET_VARIABLE
+use MPI
+
+
+implicit none
+
+integer, intent(in) :: NPART
+integer, intent(in) :: MYID, IERR
+real(kind=8), intent(in) :: BOXSIZE
+real(kind=8), intent(in) :: LXMAX, LYMAX, LZMAX
+real(kind=8), dimension(NPART,3), intent(in) :: POSI
+integer, dimension(NPART,NPART), intent(inout) :: CONNECTIVITY
+
+! Temp variables
+real(kind=8)     :: XI, YI, ZI
+real(kind=8)     :: XIJ, YIJ, ZIJ
+real(kind=8)     :: RIJSQ
+real(kind=8)     :: RIJ
+integer, dimension(NPART,NPART) :: CONNECTIVITY_TEMP
+
+
+! Indices which indicate current bucket
+integer :: JCELL, JCELLO
+
+! Indices for loops
+integer :: I, J, ICELL, NABOR
+
+
+ CONNECTIVITY_TEMP = 0
+
+do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP 
+ 
+ I = FCM_BUCKET_HEAD(ICELL)
+ 
+ do while(I>-1)
+ 
+  XI = POSI(I,1)
+  YI = POSI(I,2)
+  ZI = POSI(I,3)
+
+  
+  J = FCM_BUCKET_PART_LIST(I)
+  
+  do while(J>-1)
+  
+   XIJ = XI - POSI(J,1)
+   YIJ = YI - POSI(J,2)
+   ZIJ = ZI - POSI(J,3)
+     
+   XIJ = XIJ - LXMAX* real(int(XIJ/(0.5*LXMAX)))
+   YIJ = YIJ - LYMAX* real(int(YIJ/(0.5*LYMAX)))
+   ZIJ = ZIJ - LZMAX* real(int(ZIJ/(0.5*LZMAX)))
+   
+   RIJSQ = XIJ*XIJ + YIJ*YIJ + ZIJ*ZIJ;
+
+   RIJ = dsqrt(RIJSQ)
+				
+			if (RIJ.le.BOXSIZE) then    
+! 			 print*, MYID,'I,J = ', I,J
+    CONNECTIVITY_TEMP(I,J) = 1  
+    CONNECTIVITY_TEMP(J,I) = 1
+   end if
+   
+!~    print*,'Same Bucket'
+!~    print*, 'I = ', I
+!~    print*, 'J = ', J
+!~    print*, 'FCM_POS_REL_X(I,J) = ', FCM_POS_REL_X(I,J)
+!~    print*, 'FCM_POS_REL_Y(I,J) = ', FCM_POS_REL_Y(I,J)
+!~    print*, 'FCM_POS_REL_Z(I,J)  = ',FCM_POS_REL_Z(I,J) 
+!~    read(*,*)
+   
+   J = FCM_BUCKET_PART_LIST(J)
+   
+  end do
+  
+  JCELLO = 13*(ICELL-1)
+  
+  do NABOR = 1, 13
+  
+   JCELL = FCM_BUCKET_MAPLIST(JCELLO + NABOR)
+   J = FCM_BUCKET_HEAD(JCELL)
+   
+   do while(J>-1)
+  
+				XIJ = XI - POSI(J,1)
+				YIJ = YI - POSI(J,2)
+				ZIJ = ZI - POSI(J,3)
+						
+				XIJ = XIJ - LXMAX* real(int(XIJ/(0.5*LXMAX)))
+				YIJ = YIJ - LYMAX* real(int(YIJ/(0.5*LYMAX)))
+				ZIJ = ZIJ - LZMAX* real(int(ZIJ/(0.5*LZMAX)))
+				
+				RIJSQ = XIJ*XIJ + YIJ*YIJ + ZIJ*ZIJ;
+
+				RIJ = dsqrt(RIJSQ)
+				
+				if (RIJ.le.BOXSIZE) then    
+! 				 print*, MYID,'I,J = ',  I,J
+					CONNECTIVITY_TEMP(I,J) = 1 
+					CONNECTIVITY_TEMP(J,I) = 1 
+				end if
+				
+	!~    print*,'Same Bucket'
+	!~    print*, 'I = ', I
+	!~    print*, 'J = ', J
+	!~    print*, 'FCM_POS_REL_X(I,J) = ', FCM_POS_REL_X(I,J)
+	!~    print*, 'FCM_POS_REL_Y(I,J) = ', FCM_POS_REL_Y(I,J)
+	!~    print*, 'FCM_POS_REL_Z(I,J)  = ',FCM_POS_REL_Z(I,J) 
+	!~    read(*,*)
+				
+				J = FCM_BUCKET_PART_LIST(J)
+				
+			end do
+  
+  end do
+  
+  I = FCM_BUCKET_PART_LIST(I)
+  
+ end do
+ 
+end do
+
+
+! Simple addition of the contribution of each processor to the velocity average
+call MPI_ALLREDUCE(CONNECTIVITY_TEMP,CONNECTIVITY,NPART*NPART,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,IERR)
+
+
+end subroutine COMPUTE_CONNECTIVITY

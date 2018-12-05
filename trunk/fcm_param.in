@@ -1,0 +1,110 @@
+!=====================================================================
+! ADDITIONNAL PARAMETER FILE FOR FCM 
+!=====================================================================
+!
+!=====================================================================
+! 1. INITIATION PARAMETERS
+!=====================================================================
+1           ! Fcm particle position init     ! FCM_INIT_PART_POS
+!---------------------------------------------------------------------
+1           ! Fcm particle orientation init  ! FCM_INIT_PART_ORIENT
+!=====================================================================
+! 2. GAUSSIAN PARAMETERS
+!=====================================================================
+20          ! Default Gaussian support       ! FCM_NGD_REF
+!---------------------------------------------------------------------
+1.8611         ! Default Gaussian width (in DX) ! FCM_SIGP
+!=====================================================================
+! 3. PARTICLE PROPERTIES
+!=====================================================================
+174, 174        ! Number of spheres              ! FCM_NSPHERE, FCM_NSPHERE_1 (for bidisperse)
+!---------------------------------------------------------------------
+1.0, 0.0          ! Default sphere size         ! FCM_SPHERE_SIZE
+!---------------------------------------------------------------------
+0          ! Number of ellipsoids           ! FCM_NELLIPSOID
+!---------------------------------------------------------------------
+2, 1, 1    ! Default ellipsoid size         ! FCM_ELLIPSOID_SIZE
+!====================================================================
+! 4. FORCING PARAMETERS
+!=====================================================================
+0.,0., 0.  ! External unique force          ! FCM_EXT_FORCE
+!---------------------------------------------------------------------
+0., 0., 0.  ! External unique torque         ! FCM_EXT_TORQUE
+!====================================================================
+! 5. STRESSLET PARAMETERS
+!=====================================================================
+174  ! Stresslet, >0:number of part, 0: no		 ! FCM_ACTIVATE_STRESSLET
+!---------------------------------------------------------------------
+1e-2  	     ! Tolerance on L2 norm of ROS	 ! FCM_TOL_L2RES_ROS
+!====================================================================
+! 6. FLOW PARAMETERS
+!=====================================================================
+0.			 ! Shear: ux = fcm_shear*z	 	 ! FCM_SHEAR
+!====================================================================
+! 7. SWIMMING PARAMETERS
+!=====================================================================
+2, 0			 ! Activate swimming stresslet    ! FCM_SWIMMING
+!---------------------------------------------------------------------
+20.0			 ! Swimming velocity			  ! FCM_VSW_REF (to be multiplied by rad_i)
+!---------------------------------------------------------------------
+0.0  ! Ratio : FCM_S0/FCM_VSW			  ! FCM_BETA
+!====================================================================
+! 8. CONTACT HANDLING PARAMETERS
+!=====================================================================
+4.0   ! Repulsive Force Magnitude     ! FCM_FBLEVEL
+!---------------------------------------------------------------------
+1.1    ! Repulsive force range (*(rad_i + rad_j))    ! FCM_FBRANGE
+!====================================================================
+! 9. BOUNDARY CONDITION AND FLOW PARAMETERS
+!=====================================================================
+1    ! 1: Stokes flow, 2: Stokes Flow + Brownian motion ! FCM_FLOW_TYPE
+!---------------------------------------------------------------------
+1   ! 1: Triperiodic domain, 2: Free-stress surfaces along x ! FCM_BC
+!---------------------------------------------------------------------
+0.0   ! Thermal energy ! KBT
+!====================================================================
+! 10. RUN AND TUMBLE PARAMETERS
+!=====================================================================
+0     ! FCM_RUNTUMBLE, 0: NO RUN AND TUMBLE, 1: YES
+!---------------------------------------------------------------------
+11.2   ! FCM_TAU_RUN, MEAN  RUN TIME IN SECOND
+!
+!
+!=====================================================================
+! PARAMETER DESCRIPTION
+!=====================================================================
+!
+! For more details please refer to the Fortran file.
+!
+!---------------------------------------------------------------------
+ 1. INITIATION PARAMETERS
+!---------------------------------------------------------------------
+ FCM_INIT_PART_POS  
+      =0 : Particles are equi-spaced in the domain (NPART_FULL<=4)
+      =1 : Particles are randomly seeded in the domain 
+      =2 : Positions intiated from file
+!	
+ FCM_INIT_PART_ORIENT
+      =0 : All particles orientation are set in the x-direction
+      =1 : All particles orientation are randomly set 
+      =2 : Orientations Initiated from file
+!
+ FCM_SWIMMING
+      =0 : No swimming
+      =1 : Swimming only with dipoles
+      =2 : Squirming
+      =3 : Time-dependent swimming, all synchronized 
+      =4 : Time-dependent swimming, 1/2 of population with phase shift = pi/2
+      =5 : Time-dependent swimming, random phase shift distribution
+!!!!!!!!!!  END OF FCM_PARAM.IN  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+ 1. INITIATION PARAMETERS
+!---------------------------------------------------------------------
+ FCM_INIT_PART_POS  
+      =0 : Particles are equi-spaced in the domain
+	
+ FCM_INIT_PART_ORIENT
+      =0 : All particles orientation are set in the x-direction
+	

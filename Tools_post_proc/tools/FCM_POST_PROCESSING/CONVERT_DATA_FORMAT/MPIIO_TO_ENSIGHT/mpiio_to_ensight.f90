@@ -1,0 +1,469 @@
+!!====================================================================
+!!
+!!
+!!====================================================================
+
+Program MPIIO_TO_ASCII
+
+!!====================================================================
+!!
+!!
+!!====================================================================
+
+use MPI
+
+implicit none
+
+
+!--------------------------------------------------------------------
+! ARRAYS STATEMENT
+!--------------------------------------------------------------------
+
+!- File name 
+character(len=40) :: FILENAME
+!- String for time
+character(len=10) :: FILE_EXT
+
+
+
+!!- Vraiables from direct access files
+!-Mesh
+!~ real(kind=8), allocatable, dimension(:) :: XMESH
+!~ real(kind=8), allocatable, dimension(:) :: YMESH
+!~ real(kind=8), allocatable, dimension(:) :: ZMESH
+
+real(kind=8), allocatable, dimension(:,:,:) :: XMESH
+real(kind=8), allocatable, dimension(:,:,:) :: YMESH
+real(kind=8), allocatable, dimension(:,:,:) :: ZMESH
+!-Fluid field
+real(kind=8), allocatable, dimension(:,:,:) :: UFLU
+real(kind=8), allocatable, dimension(:,:,:) :: VFLU
+real(kind=8), allocatable, dimension(:,:,:) :: WFLU
+real(kind=8), allocatable, dimension(:,:,:,:) :: VEL
+
+
+real(kind=8) :: PPI
+real(kind=8) :: RADMAX
+real(kind=8) :: VSW
+!!- Dicrestization points in each direction
+integer :: NX, NY, NZ
+real(kind=8) :: LXMAX, LYMAX, LZMAX
+
+!!- Particle number temporary
+integer :: NPART, NSPHERE, NSPHERE_1, NELLIPSOID
+
+real(kind=8), dimension(2) :: SPH_SIZE
+
+!!- Temporary dimension integers
+integer :: DIM2, DIM3
+
+!!- Number of time iterations
+integer :: NCYCLEMAX
+
+!!- Time-step
+real(kind=8) :: DTIME
+
+!!- Dump for fluid solution
+integer :: FOUT1
+
+!!- Dump for particle solution
+integer :: FOUT3
+
+!!- Flag if quaternions are used or orientation vectors
+integer :: USE_QUAT
+
+!! Flags for Brownian + Wall
+integer :: FLOW_TYPE, BC
+
+!!- Number of dumps to read
+integer :: NB_DUMP_FILES_FLUID
+integer :: NB_DUMP_FILES_PART
+
+!- Time 
+integer :: TIME
+
+!- Save_start, Save_end, STEP_SAVE
+integer :: SAVE_START, SAVE_END, STEP_SAVE
+
+!- Index
+integer :: I, J, K, IJK, IND
+
+!- Integers to signalize a non-existing file
+integer :: ERR_INFO, &
+	   ERR_FILE_UFLU, &
+           ERR_FILE_VFLU, &
+           ERR_FILE_WFLU, &
+           ERR_FILE_POS, &
+	   ERR_FILE_POS_NOPER, &
+           ERR_FILE_VEL, &
+           ERR_FILE_ROT, &
+           ERR_FILE_ORIENT, &
+           ERR_FILE_SWIM, &
+	   ERR_FILE_P2, &
+           ERR_FILE_P3, &
+           ERR_FILE_STRESS, &
+           ERR_FILE_RADII
+
+!- Integer to say if we convert fluid velocity into ASCII
+integer ::  CONVERT_FLUID
+!- if VORONOI = 1, only positions are saved  and in a way to be read by voro++
+integer ::  VORONOI
+
+!-  MPI Variables
+integer :: IERR,NPROC,MYID
+
+!- Ensight variables
+character(LEN=80) :: GeoName,CaseName
+logical :: WriteBinary
+character(LEN=8) :: VarName
+integer :: VarType
+integer :: npt,ntini,ntstop,nprint,nb_var
+real(kind=8), dimension(:), allocatable :: tab_time
+
+!!--------------------------------------------------------------------
+!! 0.0 MPI World initiation
+!!--------------------------------------------------------------------
+call MPI_INIT(IERR)
+call MPI_COMM_SIZE(MPI_COMM_WORLD,NPROC,IERR)
+call MPI_COMM_RANK(MPI_COMM_WORLD,MYID,IERR)
+
+
+PPI = acos(-1.0)
+
+!---- Set Ensight variables --------------------------------------------
+GeoName = trim('EnsightGeom') 
+CaseName = trim('FluidVelocity')
+VarName = 'Velocity'
+VarType = 3
+nb_var = 1
+WriteBinary = .true.
+ ! WriteBinary = .false.
+!---------------------------------------------------------------------
+!=====================================================================
+! 0. READ PARAMETERS AND ALLOCATION
+!=====================================================================
+
+
+!- Open file
+open(unit=200,file='fcm_run.info',status='old', iostat=ERR_INFO)
+
+if(ERR_INFO /= 0) then
+
+ print *, "CPU -- ", MYID, ":: ERROR: Input data file fcm_run.info open error!"
+ call MPI_FINALIZE(ERR_INFO)
+ call abort()
+else
+
+ 
+  read(200,*), LXMAX
+ read(200,*), LYMAX
+ read(200,*), LZMAX
+ read(200,*), NX
+ read(200,*), NY
+ read(200,*), NZ
+ read(200,*), DTIME
+ read(200,*), NCYCLEMAX
+ read(200,*), FOUT1
+ read(200,*), FOUT3
+ read(200,*), NPART
+ read(200,*), NSPHERE, NSPHERE_1
+ read(200,*), NELLIPSOID
+ read(200,*), VSW
+ read(200,*), RADMAX
+ read(200,*), USE_QUAT
+ read(200,*), SPH_SIZE
+ read(200,*), FLOW_TYPE
+ read(200,*), BC
+
+
+end if
+close(200)
+
+
+!~ LXMAX = 2.0*PPI
+!~ LYMAX = 2.0*PPI
+!~ LZMAX = 2.0*PPI
+
+!~ ! Read dimensions from ending files
+!~ FILENAME='uf.end'
+!~ call READ_MPIIO_DIMS(NX,NY,NZ,FILENAME,ERR_FILE_UFLU)
+!~ 
+!~ ! Read dimensions from ending files
+!~ FILENAME='FCM_PART_POS.end'
+!~ call READ_MPIIO_DIMS(NPART,DIM2,DIM3,FILENAME,ERR_FILE_POS)
+
+!~ NCYCLEMAX = 500
+!~ FOUT1 = 1001
+!~ FOUT3 = 2
+
+
+NB_DUMP_FILES_FLUID = (NCYCLEMAX)/FOUT1
+print*,'NB_DUMP_FILES_FLUID = ' ,  NB_DUMP_FILES_FLUID
+
+! TEST
+!~ NB_DUMP_FILES_FLUID = 1
+!~ print*,'NB_DUMP_FILES_FLUID = ' ,  NB_DUMP_FILES_FLUID
+! TEST
+
+print*, 'NX, NY, NZ = ',  NX, NY, NZ
+
+VSW = VSW*RADMAX
+print*,'VSW = ', VSW
+
+ntini = 1
+ntstop = NB_DUMP_FILES_FLUID
+nprint = 1
+
+
+
+!~ allocate( XMESH(NX), YMESH(NY), ZMESH(NZ) )
+allocate( XMESH(NX,NY,NZ), YMESH(NX,NY,NZ), ZMESH(NX,NY,NZ) )
+allocate( UFLU(NX,NY,NZ), VFLU(NX,NY,NZ), WFLU(NX,NY,NZ) )
+allocate( VEL(3,NX,NY,NZ))
+allocate( tab_time(NB_DUMP_FILES_FLUID+1))
+
+
+
+
+!=====================================================================
+! 1. READ ENDING FLUID VELOCITY
+!=====================================================================
+
+!!--------------------------------------------------------------------
+!! 1.1 Read Direct access file written with MPI/IO
+!!--------------------------------------------------------------------
+!!--------------------------------------------------------------------
+!!- x-component
+!!--------------------------------------------------------------------
+!!- Print file name
+FILENAME='uf.end'
+call READ_MPIIO(NX,NY,NZ,UFLU,FILENAME,ERR_FILE_UFLU)
+
+!!--------------------------------------------------------------------
+!! y-component
+!!--------------------------------------------------------------------
+!!- Print file name
+FILENAME='vf.end'
+call READ_MPIIO(NX,NY,NZ,VFLU,FILENAME,ERR_FILE_VFLU)
+
+!!--------------------------------------------------------------------
+!! z-component
+!!--------------------------------------------------------------------
+!!- Print file name
+ FILENAME='wf.end'
+call READ_MPIIO(NX,NY,NZ,WFLU,FILENAME,ERR_FILE_WFLU)
+
+if (VSW.gt.0.0) then
+ VEL(1,:,:,:) = UFLU/VSW
+ VEL(2,:,:,:) = VFLU/VSW
+ VEL(3,:,:,:) = WFLU/VSW
+else
+ VEL(1,:,:,:) = UFLU
+ VEL(2,:,:,:) = VFLU
+ VEL(3,:,:,:) = WFLU
+end if
+print*,'minval(VEL) = ', minval(VEL)
+print*,'minloc(VEL) = ', minloc(VEL) 
+
+
+print*,'maxval(VEL) = ', maxval(VEL)
+print*,'maxloc(VEL) = ', maxloc(VEL) 
+
+
+
+!! CHecking symmetries for channel flow
+do I=2,NX/2
+ UFLU(I,:,:) = UFLU(I,:,:) + UFLU(NX+2-I,:,:)
+ VFLU(I,:,:) = VFLU(I,:,:) - VFLU(NX+2-I,:,:)
+ WFLU(I,:,:) = WFLU(I,:,:) - WFLU(NX+2-I,:,:)
+end do
+
+!~ print*,'maxval(UFLU(2:NX/2,:,:)) = ', maxval(UFLU(2:NX/2,:,:))
+!~ print*,'minval(UFLU(2:NX/2,:,:)) = ', minval(UFLU(2:NX/2,:,:))
+!~ print*,'maxloc(UFLU(2:NX/2,:,:)) = ', maxloc(UFLU(2:NX/2,:,:))
+!~ print*,'minloc(UFLU(2:NX/2,:,:)) = ', minloc(UFLU(2:NX/2,:,:))
+!~ 
+!~ print*,'maxval(VFLU(2:NX/2,:,:)) = ', maxval(VFLU(2:NX/2,:,:))
+!~ print*,'minval(VFLU(2:NX/2,:,:)) = ', minval(VFLU(2:NX/2,:,:))
+!~ print*,'maxloc(VFLU(2:NX/2,:,:)) = ', maxloc(VFLU(2:NX/2,:,:))
+!~ print*,'minloc(VFLU(2:NX/2,:,:)) = ', minloc(VFLU(2:NX/2,:,:))
+!~ 
+!~ print*,'maxval(WFLU(2:NX/2,:,:)) = ', maxval(WFLU(2:NX/2,:,:))
+!~ print*,'minval(WFLU(2:NX/2,:,:)) = ', minval(WFLU(2:NX/2,:,:))
+!~ print*,'maxloc(WFLU(2:NX/2,:,:)) = ', maxloc(WFLU(2:NX/2,:,:))
+!~ print*,'minloc(WFLU(2:NX/2,:,:)) = ', minloc(WFLU(2:NX/2,:,:))
+!~ read(*,*)
+
+!=====================================================================
+! 2. MESH GENERATION
+!=====================================================================
+
+do I = 1, NX
+ XMESH(I,:,:) = (I-1)*LXMAX/NX
+end do 
+if (NSPHERE_1==NSPHERE) then
+ XMESH = XMESH/RADMAX
+else
+ XMESH = XMESH/RADMAX*real(SPH_SIZE(1)/SPH_SIZE(2))
+end if
+
+do J = 1, NY
+ YMESH(:,J,:) = (J-1)*LYMAX/NY
+end do
+if (NSPHERE_1==NSPHERE) then
+ YMESH = YMESH/RADMAX
+else
+ YMESH = YMESH/RADMAX*real(SPH_SIZE(1)/SPH_SIZE(2))
+end if
+
+do K = 1, NZ
+ ZMESH(:,:,K) = (K-1)*LZMAX/NZ
+end do
+if (NSPHERE_1==NSPHERE) then
+ ZMESH = ZMESH/RADMAX
+else
+ ZMESH = ZMESH/RADMAX*real(SPH_SIZE(1)/SPH_SIZE(2))
+end if
+
+print*,'minval(XMESH),minval(YMESH),minval(ZMESH) = ', minval(XMESH),minval(YMESH),minval(ZMESH)
+print*,'maxval(XMESH),maxval(YMESH),maxval(ZMESH) = ', maxval(XMESH),maxval(YMESH),maxval(ZMESH)
+
+
+!=====================================================================
+! 3. SAVE  FIELD + MESH + ENDING TIME IN ASCII 
+!=====================================================================
+call WriteCurvEnsightGeo(1,NX,1,NY,1,NZ, &
+                           XMESH,YMESH,ZMESH,GeoName,WriteBinary)
+
+TIME = NCYCLEMAX + 1
+tab_time(NB_DUMP_FILES_FLUID+1) = TIME
+!! - Write ENSIGHT file only if the three files exist
+print*,'TIME = ', TIME
+print*,'tab_time = ', tab_time
+if ( (ERR_FILE_UFLU.eq.0).and.(ERR_FILE_VFLU.eq.0).and.(ERR_FILE_WFLU.eq.0) ) then
+ call WriteEnsightVar(3,NX,NY,NZ,VEL,VarName,WriteBinary, &
+                         1,NX,1,NY,1,NZ,NB_DUMP_FILES_FLUID+1)
+end if
+
+!=====================================================================
+! 4. READ INTERMEDIATE FLUID VELOCITY
+!=====================================================================
+IND = 0
+do npt = ntini, ntstop, nprint
+
+
+ IND = IND + 1
+ TIME = (npt-1)*FOUT1 + 1
+ tab_time(IND) = real(TIME)
+ 
+ print*,'NPT = ', NPT
+ print*,'TIME = ', TIME
+ 
+ write(FILE_EXT,10205) TIME
+ 
+ write(FILENAME,10101)'uf_t',trim(FILE_EXT),'.bin'
+ call READ_MPIIO(NX,NY,NZ,UFLU,FILENAME,ERR_FILE_UFLU) 
+
+ write(FILENAME,10101)'vf_t',trim(FILE_EXT),'.bin'
+ call READ_MPIIO(NX,NY,NZ,VFLU,FILENAME,ERR_FILE_VFLU) 
+
+ write(FILENAME,10101)'wf_t',trim(FILE_EXT),'.bin'
+ call READ_MPIIO(NX,NY,NZ,WFLU,FILENAME,ERR_FILE_WFLU)
+ 
+if (VSW.gt.0.0) then
+ VEL(1,:,:,:) = UFLU/VSW
+ VEL(2,:,:,:) = VFLU/VSW
+ VEL(3,:,:,:) = WFLU/VSW
+else
+ VEL(1,:,:,:) = UFLU
+ VEL(2,:,:,:) = VFLU
+ VEL(3,:,:,:) = WFLU
+end if
+print*,'minval(VEL) = ', minval(VEL)
+print*,'minloc(VEL) = ', minloc(VEL) 
+
+
+print*,'maxval(VEL) = ', maxval(VEL)
+print*,'maxloc(VEL) = ', maxloc(VEL) 
+
+
+!~ !! CHecking symmetries for channel flow
+!~ do I=2,NX/2
+!~  UFLU(I,:,:) = UFLU(I,:,:) + UFLU(NX+2-I,:,:)
+!~  VFLU(I,:,:) = VFLU(I,:,:) - VFLU(NX+2-I,:,:)
+!~  WFLU(I,:,:) = WFLU(I,:,:) - WFLU(NX+2-I,:,:)
+!~ end do
+!~ 
+!~ 
+!~ print*,'maxval(UFLU(2:NX/2,:,:)) = ', maxval(UFLU(2:NX/2,:,:))
+!~ print*,'minval(UFLU(2:NX/2,:,:)) = ', minval(UFLU(2:NX/2,:,:))
+!~ print*,'maxloc(UFLU(2:NX/2,:,:)) = ', maxloc(UFLU(2:NX/2,:,:))
+!~ print*,'minloc(UFLU(2:NX/2,:,:)) = ', minloc(UFLU(2:NX/2,:,:))
+!~ 
+!~ print*,'maxval(VFLU(2:NX/2,:,:)) = ', maxval(VFLU(2:NX/2,:,:))
+!~ print*,'minval(VFLU(2:NX/2,:,:)) = ', minval(VFLU(2:NX/2,:,:))
+!~ print*,'maxloc(VFLU(2:NX/2,:,:)) = ', maxloc(VFLU(2:NX/2,:,:))
+!~ print*,'minloc(VFLU(2:NX/2,:,:)) = ', minloc(VFLU(2:NX/2,:,:))
+!~ 
+!~ print*,'maxval(WFLU(2:NX/2,:,:)) = ', maxval(WFLU(2:NX/2,:,:))
+!~ print*,'minval(WFLU(2:NX/2,:,:)) = ', minval(WFLU(2:NX/2,:,:))
+!~ print*,'maxloc(WFLU(2:NX/2,:,:)) = ', maxloc(WFLU(2:NX/2,:,:))
+!~ print*,'minloc(WFLU(2:NX/2,:,:)) = ', minloc(WFLU(2:NX/2,:,:))
+!~ read(*,*)
+ 
+
+
+ !=====================================================================
+ ! 5. SAVE INTERMEDIATE FLUID VELOCITY
+ !=====================================================================
+
+ !! - Write ENSIGHT file only if the three files exist
+ if ( (ERR_FILE_UFLU.eq.0).and.(ERR_FILE_VFLU.eq.0).and.(ERR_FILE_WFLU.eq.0) ) then
+ 
+ call WriteEnsightVar(3,NX,NY,NZ,VEL,VarName,WriteBinary, &
+                         1,NX,1,NY,1,NZ,npt)
+ end if
+
+end do
+
+print*,'tab_time = ', tab_time
+
+call EnsightCase(CaseName,VarName,VarType,nb_var, &
+                            GeoName,ntini,ntstop,nprint,tab_time) 
+
+print*, '-------------------------------------------------------------'
+print*, '                    END SAVING FILES                            '
+print*, '-------------------------------------------------------------'
+
+ 
+!- Free MPI environement
+call MPI_FINALIZE (ierr)
+
+!!====================================================================
+1999 format ('VARIABLES = "x", "y", "z", "u", "v", "w"')
+2000 format ('VARIABLES = "x", "y", "z", "u", "v", "w", "n", "p"')
+2001 format ('ZONE F=POINT I=',i4,' J=',i4,' K=',i4,' SOLUTIONTIME=',e12.5)
+
+1998 format ('VARIABLES = "xp noper", "yp noper", "zp noper"')
+2002 format ('VARIABLES = "xp", "yp", "zp"')
+2003 format ('VARIABLES = "up", "vp", "wp"')
+2004 format ('VARIABLES = "ompx", "ompy", "ompz"')
+2005 format ('VARIABLES = "quat1", "quat2", "quat3", "quat4"')
+2006 format ('VARIABLES = "pswimx", "pswimy", "pswimz"')
+2007 format ('VARIABLES = "Sxx", "Sxy", "Sxz", "Syy", "Syz"')
+2008 format ('VARIABLES = "a1", "a2", "a3"')
+
+2010 format ('NPART_FULL = ', i4)
+2011 format ('NPART_FULL = ')
+
+2012 format (I5.5,3(e17.7))
+
+10200 format (A)
+10201 format (A,I1)
+10202 format (A,I2)
+10203 format (A,I3)
+10204 format (A,I5)
+10205 format (I8.8)
+10101 format (A,A,A)
+
+end program MPIIO_TO_ASCII

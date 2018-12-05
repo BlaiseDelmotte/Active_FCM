@@ -1,0 +1,197 @@
+!=====================================================================
+! PARAMETER FILE FOR 3D-DNS USING FOURIER DECOMPOSITION
+!=====================================================================
+!
+!=====================================================================
+! Numerics
+!=====================================================================
+2           ! Fluid solver                   ! SOLVE_FLUID
+!---------------------------------------------------------------------
+64       ! Mesh Size                         ! NX
+64      ! Mesh Size                          ! NY
+64        ! Mesh Size                       ! NZ
+!---------------------------------------------------------------------
+2.5E-4      ! Time step                      ! DTIME
+50000          ! Maximum Cycle number           ! NCYCLEMAX                       
+!---------------------------------------------------------------------
+3           ! Fluid velocity init            ! INIT_FLUID_VELOCITY
+.false.     ! Forcing flag                   ! STEADY
+4.0E-3      ! Forcing variance               ! SIGMA_FORCE
+2.00        ! Forcing time                   ! TIME_FORCE
+3.0         ! First forced wave (k/k0)       ! KFORCE_MIN
+6.0         ! Last forced wave  (k/k0)       ! KFORCE_MAX
+!---------------------------------------------------------------------
+.false.     ! Passive scalar equation        ! SOLVE_SCALAR
+3           ! Initiation                     ! INIT_SCALAR
+!---------------------------------------------------------------------
+.false.      ! Particle trajectory           ! SOLVE_PART 
+3            ! Contact Handling              ! SOLVE_COLLISION
+8           ! Number of particle species     ! NIG
+174        ! Number of particle             ! NPART_FULL
+3           ! Interpolation scheme           ! INTERP_SCHEME
+2           ! Particle position init         ! INIT_PART_POSITION
+1           ! Particle velocity init         ! INIT_PART_VELOCITY
+1           ! Particle scalar init           ! INIT_PART_SCALAR
+!=====================================================================
+! Statistics
+!=====================================================================
+.false.     ! Restart statistics             ! READSTAT
+.false.     ! Time averaging                 ! STAT_TIME
+       -----!------
+.false.     ! 1st level of fluid statistics  ! LEVEL1_STFLU 
+.false.     ! 2nd level of fluid statistics  ! LEVEL2_STFLU 
+.false.     ! 3rd level of fluid statistics  ! LEVEL3_STFLU 
+.false.     ! 4th level of fluid statistics  ! LEVEL4_STFLU 
+       -----!------
+.false.     ! 1st level of scalar statistics ! LEVEL1_STSCL 
+.false.     ! 2nd level of scalar statistics ! LEVEL2_STSCL 
+       -----!------
+.false.     ! 1st level of part statistics   ! LEVEL1_STPAR 
+.false.     ! 2nd level of part statistics   ! LEVEL2_STPAR 
+.false.     ! 3rd level of part statistics   ! LEVEL3_STPAR 
+!---------------------------------------------------------------------
+! Outputing
+!---------------------------------------------------------------------
+1000         ! Screen                         ! FOUT0
+10000000         !Fluid Solution                  ! FOUT1
+1000           ! Statistics                     ! FOUT2
+100          ! Particles Solution             ! FOUT3
+1           ! To define                      ! FOUT4
+1           ! To define                      ! FOUT5
+0           ! Ensight format                 ! ENSIGHT
+!=====================================================================
+! Fluid properties
+!=====================================================================
+6.2832   ! Box size                       ! LXMAX
+6.2832   ! Box size                       ! LYMAX
+6.2832   ! Box size                       ! LZMAX
+1.00        ! Molecular viscosity (m2/s)     ! VISC
+1.00        ! Density   (kg/m3)              ! RHOF
+!=====================================================================
+! Scalar properties
+!=====================================================================
+1.43E-3     ! Diffusivity                    ! DIFF_SCL
+1005.0      ! Specific "heat"                ! CP_SCL
+1.592E-1    ! Imposed mean gradient          ! GRAD_SCL
+!=====================================================================
+! Particle properties
+!=====================================================================
+0           ! Particle kind                  ! PARTDEF
+1e-6        ! Diameter (m)                   ! DPART
+1.0         ! Density  (kg/m3)               ! RHOP
+0.0         ! Gravity along z                ! GRAVITY
+502.5       ! Specific "heat"                ! CP_SCL
+----------------------------------------------------------------------
+1           ! Particle kind                  ! PARTDEF
+1e-6        ! Diameter (m)                   ! DPART
+1.0         ! Density  (kg/m3)               ! RHOP
+0.0         ! Gravity along z                ! GRAVITY
+502.5       ! Specific "heat"                ! CP_SCL
+----------------------------------------------------------------------
+2           ! Particle kind                  ! PARTDEF
+0.01        ! Diameter (m)                   ! DPART
+75.0        ! Density  (kg/m3)               ! RHOP
+0.0         ! Gravity along z                ! GRAVITY
+502.5       ! Specific "heat"                ! CP_SCL
+----------------------------------------------------------------------
+2           ! Particle kind                  ! PARTDEF
+0.01        ! Diameter (m)                   ! DPART
+50.0        ! Density  (kg/m3)               ! RHOP
+0.0         ! Gravity along z                ! GRAVITY
+502.5       ! Specific "heat"                ! CP_SCL
+----------------------------------------------------------------------
+2           ! Particle kind                  ! PARTDEF
+0.01        ! Diameter (m)                   ! DPART
+25.0        ! Density  (kg/m3)               ! RHOP
+0.0         ! Gravity along z                ! GRAVITY
+502.5       ! Specific "heat"                ! CP_SCL
+----------------------------------------------------------------------
+2           ! Particle kind                  ! PARTDEF
+0.01        ! Diameter (m)                   ! DPART
+12.5        ! Density  (kg/m3)               ! RHOP
+0.0         ! Gravity along z                ! GRAVITY
+502.5       ! Specific "heat"                ! CP_SCL
+----------------------------------------------------------------------
+2           ! Particle kind                  ! PARTDEF
+0.01        ! Diameter (m)                   ! DPART
+6.25        ! Density  (kg/m3)               ! RHOP
+0.0         ! Gravity along z                ! GRAVITY
+502.5       ! Specific "heat"                ! CP_SCL
+----------------------------------------------------------------------
+2           ! Particle kind                  ! PARTDEF
+0.01        ! Diameter (m)                   ! DPART
+3.125       ! Density  (kg/m3)               ! RHOP
+0.0         ! Gravity along z                ! GRAVITY
+502.5       ! Specific "heat"                ! CP_SCL
+!=====================================================================
+! PARAMETER DESCRIPTION
+!=====================================================================
+!
+! For more details please refer to the Fortran file.
+!
+!---------------------------------------------------------------------
+! Fluid phase
+!---------------------------------------------------------------------
+!- Fluid Initiation
+INIT_FLUID_VELOCITY
+    = 0 : Uf = 0
+    = 1 : Random value
+    = 2 : Uniform fluid velocity (defined in fortran file)
+    = 3 : Read fluid velocity field read from thi generating code
+    = 4 : Read fluid velocity field read from stored files
+
+!- Statistics on the fluid
+LEVEL1_STFLU !- One point statistics (mean, Reynolds stress, 3rd & 4th-order)
+LEVEL2_STFLU !- Divergence, dissipation
+LEVEL3_STFLU !- Skewness, Flatness, PDF of fluid velocity & gradients
+LEVEL4_STFLU !- Two points statistics (Spatial correlation)
+
+
+!---------------------------------------------------------------------
+! Scalar phase
+!---------------------------------------------------------------------
+!- Scalar Initiation
+INIT_SCALAR = 0 : theta = a given value
+            = 1 : Uniform distribution arround the given value
+            = 2 : Scalar field read from stored files
+
+
+!---------------------------------------------------------------------
+! Particle phase
+!---------------------------------------------------------------------
+!- Interpolation scheme 
+INTERP_SCHEME = 1 : 1st order Lagrangian polynomial
+              = 2 : 2nd order Lagrangian polynomial
+              = 3 : 3rd order Lagrangian polynomial
+              = 4 : 4th order Lagrangian polynomial
+
+!- Particle initiation
+INIT_PART_POSITION = 0 : Given by a user 
+                   = 1 : Random
+		   = 2 : ????
+                   = 3 : Read particle velocity from stored files
+
+!- Particle initiation
+INIT_PART_VELOCITY = 0 : Up = 0
+                   = 1 : Random
+		   = 2 : ????
+                   = 3 : Read particle velocity from stored files
+
+!- Particle definition
+PARTDEF = 0 : Motionless particles
+        = 1 : Fluid elements
+        = 2 : Inertial particles
+        
+!- Contact handling between particles
+SOLVE_COLLLISION = 0 : No handling
+                 = 1 : Solid/Solid
+                 = 2 : Droplet/Droplet
+                 = 3 : Barrier Force
+                 = 4 : Kinematic handling (Maury 2006)   
+
+!- Statistics on the particle
+LEVEL1_STPAR !- One point statistics (mean, Reynolds stress)
+LEVEL2_STPAR !- Lagrangian function
+LEVEL3_STPAR !- Spatial distribution
+
+

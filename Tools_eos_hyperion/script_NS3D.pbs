@@ -1,0 +1,58 @@
+########################################################################
+#
+#  Script for NS3D
+#
+#-----------------------------------------------------------------------
+#
+#
+#   hour   |   minute | second
+#
+#     -    |     10   |    600
+#     -    |     20   |   1200
+#     -    |     40   |   2400
+#     1    |     6    |   3600
+#    1,5   |     90   |   5400
+#     2    |    120   |   7200
+#     4    |    240   |  14400
+#    10    |    600   |  36000
+#    20    |   1200   |  72000
+#    24    |   1440   |  86400
+#    36    |   2160   | 129600
+#
+########################################################################
+#PBS -j eo
+#PBS -l select=2:ncpus=16:mpiprocs=16 -l place=excl:scatter
+#PBS -l walltime=3600
+#PBS -N NS3D
+#PBS -m e -M bdelmott@imft.fr
+
+export WALLTIME=3600 # walltime pour PBS en secondes
+
+
+#- Load environment
+. $MODULESHOME/init/sh
+module purge
+module load intel-fc-12/12.0.4
+module load sgi-mpt/2.0.4
+module load intel-mkl/12.0.4
+
+ifort -V
+
+
+cd ${PBS_O_WORKDIR}
+cat $PBS_NODEFILE | uniq > ns3d.hosts
+
+export nbprocs=`cat $PBS_NODEFILE|wc -l`
+export MPI_TYPE_MAX=500000
+
+echo $nbprocs
+
+#cp /users/p1208/pfede/CASE1/param.in ${PBS_O_WORKDIR}
+cp /users/p1208/blaised/NS3D/trunk/ns3d ${PBS_O_WORKDIR}
+
+
+/usr/bin/time -p mpiexec_mpt -np $nbprocs ./ns3d $WALLTIME > ns3d.log
+
+
+
+

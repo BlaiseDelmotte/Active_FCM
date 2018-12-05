@@ -1,0 +1,76 @@
+# @ shell = /bin/bash
+
+#=========== Global directives ===========
+# @ job_name = NS3D_brownian
+# @ output = $(job_name).$(step_name).$(jobid)
+# @ error = error.$(jobid)
+
+#=========== Step 1 directives ===========
+#============== get_file =================
+# @ step_name = get_file
+# @ job_type = serial
+# @ queue
+
+
+#=========== Step 2 directives ===========
+#============= Parallel step =============
+# @ step_name = parallel_step
+# @ dependency = (get_file == 0)
+# @ job_type = parallel
+# @ total_tasks = 128
+# @ notification = complete
+# @ wall_clock_limit = 20:00:00
+# @ queue
+
+
+#=========== Step 3 directives ===========
+#======= Sequential postprocessing =======
+# @ step_name = put_file
+# @ dependency = (parallel_step >= 0) && (get_file==0)
+# @ job_type = serial
+# @ queue
+
+#LOGFILE=`ls -1tr $LOADL_STEP_INITDIR/error.* | tail -1`
+LOGFILE=$TMPDIR
+
+ext=`echo $LOGFILE | cut -d "." -f4`
+
+case $LOADL_STEP_NAME in
+
+ #============ Step 1 commands ============
+ #======= Sequential preprocessing ========
+ get_file )
+  set -ex
+  cd $TMPDIR
+ ;;
+ #============ Step 2 commands ============
+ #============= Parallel step =============
+ parallel_step )
+  set -x
+  cd $TMPDIR
+  cp $LOADL_STEP_INITDIR/ns3d .
+  cp $LOADL_STEP_INITDIR/*.in .
+  cp $LOADL_STEP_INITDIR/*.txt .
+  cp $LOADL_STEP_INITDIR/*.ini .
+  ls -al 
+  export WALLTIME=72000 # walltime pour PBS en secondes
+  poe ./ns3d $WALLTIME > ns3d_32cores.log
+  cd $TMPDIR
+ ;;
+
+ #============ Step 3 commands ============
+ #======= Sequential postprocessing =======
+ ##### Tar result folder and put on ERGON
+ put_file )
+  set -x
+  mkdir $WORKDIR/results.${ext}
+  cp $TMPDIR/*.* $WORKDIR/results.${ext}
+  tar -cvf $WORKDIR/results.${ext}.tar $WORKDIR/results.${ext}
+  mfput $WORKDIR/results.${ext}.tar  ~
+  rm -r $WORKDIR/results.${ext}
+  rm $WORKDIR/results.${ext}.tar
+  #cp -r $RUN ${LOADL_STEP_INITDIR}/.
+
+ ;;
+
+esac

@@ -1,0 +1,17 @@
+FC      = mpiifort
+LD      = $(FC)
+F90     = $(FC)
+SWP     =
+RM      = /bin/rm -f
+MP      =
+OLEVEL  = -O3 -xAVX -fno-alias -no-prec-div -no-prec-sqrt -ip
+#~ OLEVEL       = -O3 -unroll
+#OLEVEL = -O3
+FOPTS   = -r8 -g 
+#FOPTS  = -r8 -ftrapuv -check bounds -g 
+FFLAGS  = $(FOPTS) $(OLEVEL)
+SPRNGDIR = $(HOME)/sprng
+INCLUDE = -I$(SPRNGDIR)/include
+LIBS    = -lp3dfft $(SPRNGDIR)/lib/libsprng.a -mkl
+LDFLAGS = $(FOPTS) $(OLEVEL)
+PROF    =

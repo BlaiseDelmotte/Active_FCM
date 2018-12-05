@@ -1,0 +1,179 @@
+!!====================================================================
+!!
+!!
+!!====================================================================
+
+subroutine HEIGHT_DISTRIB(NSAVES, SAVE_START, NPART, LX, RADMAX, POS)
+
+!!====================================================================
+!!
+!!
+!!====================================================================
+
+
+implicit none
+
+
+!--------------------------------------------------------------------
+! ARGUMENTS
+!--------------------------------------------------------------------
+! Number of snapshots
+integer, intent(in) :: NSAVES
+! Where to start
+integer, intent(in) :: SAVE_START
+! Number of swimmers
+integer, intent(in) :: NPART
+! Height of the domain
+real(kind=8), intent(in) :: LX
+! Max radius
+real(kind=8), intent(in) :: RADMAX
+! Particle velocities
+real(kind=8), dimension(NSAVES,NPART,3), intent(in) :: POS
+
+!--------------------------------------------------------------------
+! ARRAYS STATEMENT
+!--------------------------------------------------------------------
+!- Height distrib
+real(kind=8), allocatable, dimension(:) :: H_DISTRIB
+real(kind=8), allocatable, dimension(:) :: RANGE_H
+
+
+!- Step size to discretize the interval
+real(kind=8) :: DH
+
+!- Number of steps to discretize the interval 
+integer :: NH
+
+!- Indices for distrib
+integer :: IND_H
+
+!- File name 
+character(len=40) :: FILENAME
+
+
+!- Index
+integer :: I, J, K, IND
+
+!- Integers to signalize problems when writing
+integer :: ERR_FILE_HEIGHT
+
+print*,' '
+print*,'-------------------START HEIGHT DISTRIB------------------------ '
+print*,' '
+!---------------------------------------------------------------------
+
+ 
+!=====================================================================
+! 2. DEFINE DISCRETIZATION OF H_DISTRIB
+!=====================================================================
+print*, 'DISCRETIZE RANGE OF VELOCITIES FOR PDF'
+DH = 0.02*RADMAX
+NH = (LX/2.0 - 0.0)/DH
+
+print*,'LX = ', LX
+print*,'RADMAX = ', RADMAX
+print*,'NH = '
+print*, NH
+        
+
+allocate(H_DISTRIB(NH))
+allocate(RANGE_H(NH))
+
+
+RANGE_H(1) = 0.0
+do J = 2, NH
+ RANGE_H(J) = RANGE_H(J-1) + DH
+end do
+
+
+print*, 'DISCRETIZE RANGE OF HEIGHT FOR DISTRIB---> OK'
+
+
+!=====================================================================
+! 2. COMPUTE DSITRIB
+!=====================================================================
+print*,'COMPUTE DISTRIB HEIGHT  '
+
+H_DISTRIB = 0.0
+
+K = 0
+
+do IND = SAVE_START, NSAVES 
+ K = K+1
+ do I = 1, NPART
+  IND_H = floor( ( POS(K,I,1)-RANGE_H(1) )/DH ) + 1
+  
+  if ((IND_H<1).or.(IND_H>NH)) then
+   print*, 'POS(K,I,1) = ', POS(K,I,1)
+   print*, 'RANGE_H(1) = ', RANGE_H(1)
+   print*, '( POS(K,I,1)-RANGE_H(1) )/DH = ', ( POS(K,I,1)-RANGE_H(1) )/DH
+   print*, 'IND_H = ', IND_H
+   read(*,*)
+  end if
+
+  
+  H_DISTRIB(IND_H) = H_DISTRIB(IND_H) + 1.0
+
+ end do
+end do
+
+print*,'COMPUTE H_DISTRIB  --->  OK '
+
+!=====================================================================
+! 3. WRITE H_DISTRIB
+!=====================================================================
+
+!---------- Height-----------
+!!-Print filename
+write(FILENAME,10200)'H_DISTRIB.dat'
+
+!!- ASCII
+open(unit=301,file=trim(FILENAME))
+!!- Ecriture ASCII
+
+do J = 1, NH
+ write(301,'(2(e17.7))') RANGE_H(J)/RADMAX, H_DISTRIB(J)
+end do
+
+!- close file
+close(301)
+
+print*,'SAVE H_DISTRIB--->  OK '
+
+
+deallocate(H_DISTRIB)
+deallocate(RANGE_H)
+
+
+print*,' '
+print*,'-------------------END PDF VELOCITIES--------------------------- '
+print*,' '
+
+ 
+
+!!====================================================================
+1999 format ('VARIABLES = "x", "y", "z", "u", "v", "w"')
+2000 format ('VARIABLES = "x", "y", "z", "u", "v", "w", "n", "p"')
+2001 format ('ZONE F=POINT I=',i4,' J=',i4,' K=',i4,' SOLUTIONTIME=',e12.5)
+
+1998 format ('VARIABLES = "xp noper", "yp noper", "zp noper"')
+2002 format ('VARIABLES = "xp", "yp", "zp"')
+2003 format ('VARIABLES = "up", "vp", "wp"')
+2004 format ('VARIABLES = "ompx", "ompy", "ompz"')
+2005 format ('VARIABLES = "quat1", "quat2", "quat3", "quat4"')
+2006 format ('VARIABLES = "pswimx", "pswimy", "pswimz"')
+2007 format ('VARIABLES = "Sxx", "Sxy", "Sxz", "Syy", "Syz"')
+2008 format ('VARIABLES = "a1", "a2", "a3"')
+
+2010 format ('NPART_FULL = ', i4)
+2011 format ('NPART_FULL = ')
+
+10200 format (A)
+10201 format (A,I1)
+10202 format (A,I2)
+10203 format (A,I3)
+10204 format (A,I4)
+10205 format (I8.8)
+10101 format (A,A,A)
+
+end subroutine HEIGHT_DISTRIB

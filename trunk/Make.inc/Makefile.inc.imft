@@ -1,0 +1,21 @@
+FC      = mpif90
+LD      = $(FC)
+F90     = $(FC)
+SWP     =
+RM      = /bin/rm -f
+MP      =
+#OLEVEL = -O3 -mnoieee-fp -unroll -msse2
+OLEVEL  = -O3
+FOPTS   = -r8 -lstdc++
+#~ FOPTS        = -r8 -ftrapuv -check bounds -g -lstdc++
+FFLAGS  = $(FOPTS) $(OLEVEL)
+MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread
+FFTWDIR = /PRODCOM/FFTW/fftw-3.3.1-intel64v2011.7.256/glibc-2.11
+P3DFFTDIR = /PRODCOM/FFTW/p3dfft.2.5.1-intel64v2011.7.256/glibc-2.11
+TECPLOTDIR = /PRODCOM/TECPLOT/tec360-2011r2/x86-64-2.9
+SPRNGDIR = /PRODCOM/Ubuntu12.04/sprng/2.0
+LIBS    = $(P3DFFTDIR)/lib/libp3dfft.a $(FFTWDIR)/lib/libfftw3.a $(TECPLOTDIR)/lib/tecio.a $(MKL) $(SPRNGDIR)/lib/libsprng.a
+INCLUDE = -I$(P3DFFTDIR)/include -I$(FFTWDIR)/include -I$(TECPLOTDIR)/include -I$(SPRNGDIR)/include
+LDFLAGS = $(FOPTS) $(OLEVEL)
+PROF    =
+
