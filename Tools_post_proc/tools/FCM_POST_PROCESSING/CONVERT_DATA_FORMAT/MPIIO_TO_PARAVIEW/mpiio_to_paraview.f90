@@ -35,6 +35,7 @@ real(kind=8), allocatable, dimension(:,:,:) :: VFLU
 real(kind=8), allocatable, dimension(:,:,:) :: WFLU
 
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS
+real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS_NOPER
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_VEL
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_ROT
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_ORIENT
@@ -102,6 +103,7 @@ integer :: ERR_INFO, &
            ERR_FILE_VFLU, &
            ERR_FILE_WFLU, &
            ERR_FILE_POS, &
+           ERR_FILE_POS_NOPER, &
            ERR_FILE_VEL, &
            ERR_FILE_ROT, &
            ERR_FILE_ORIENT, &
@@ -179,6 +181,7 @@ print*,'NB_DUMP_FILES_PART = ' ,  NB_DUMP_FILES_PART
 !~ allocate( XMESH(NX), YMESH(NY), ZMESH(NZ) )
 !~ allocate( UFLU(NX,NY,NZ), VFLU(NX,NY,NZ), WFLU(NX,NY,NZ) )
 allocate( FCM_POS(NPART,3,1) )
+allocate( FCM_POS_NOPER(NPART,3,1) )
 allocate( FCM_VEL(NPART,3,1) )
 allocate( FCM_ROT(NPART,3,1) )
 !~ allocate( FCM_ORIENT(NPART,4,1) )
@@ -226,6 +229,9 @@ BINFLAG = .false.
 FILENAME='FCM_PART_POS.end'
 call READ_VAR_MPIIO(NPART,3,1,FCM_POS,FILENAME,ERR_FILE_POS)
 
+FILENAME='FCM_PART_POS_NOPER.end'
+call READ_VAR_MPIIO(NPART,3,1,FCM_POS_NOPER,FILENAME,ERR_FILE_POS_NOPER)
+
 FILENAME='FCM_PART_VEL.end'
 call READ_VAR_MPIIO(NPART,3,1,FCM_VEL,FILENAME,ERR_FILE_VEL)
 !~ 
@@ -272,6 +278,7 @@ if (NELLIPSOID==0) then
    call PRINT_PARAVIEW_PART(TIME, &
                              NPART, &
                              FCM_POS(:,:,1), &
+                             FCM_POS_NOPER(:,:,1), &
                              FCM_VEL(:,:,1), &
                              FCM_ROT(:,:,1), &
                              FCM_PSWIM(:,:,1), &
@@ -327,6 +334,9 @@ do IND=1,NB_DUMP_FILES_PART,STEP_SAVE
  write(FILENAME,10205)'FCM_PART_POS_t',TIME,'.bin'
  call READ_VAR_MPIIO(NPART,3,1,FCM_POS,FILENAME,ERR_FILE_POS) 
 
+ write(FILENAME,10205)'FCM_PART_POS_NOPER_t',TIME,'.bin'
+ call READ_VAR_MPIIO(NPART,3,1,FCM_POS_NOPER,FILENAME,ERR_FILE_POS_NOPER) 
+
  write(FILENAME,10205)'FCM_PART_VEL_t',TIME,'.bin'
  call READ_VAR_MPIIO(NPART,3,1,FCM_VEL,FILENAME,ERR_FILE_VEL)
  
@@ -370,6 +380,7 @@ do IND=1,NB_DUMP_FILES_PART,STEP_SAVE
     call PRINT_PARAVIEW_PART(TIME, &
                               NPART, &
                               FCM_POS(:,:,1), &
+                              FCM_POS_NOPER(:,:,1), &
                               FCM_VEL(:,:,1), &
                               FCM_ROT(:,:,1), &
                               FCM_PSWIM(:,:,1), &

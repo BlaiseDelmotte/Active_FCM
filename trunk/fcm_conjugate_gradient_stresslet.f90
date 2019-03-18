@@ -32,6 +32,11 @@ use P3DFFT
 
 implicit none
 
+! Norm of the RHS of the CG equation to solve
+real(kind=8) :: NORM_EIJ
+real(kind=8) :: TOL
+
+
 ! Indices for loops
 integer :: K
 
@@ -41,20 +46,26 @@ K = 0
 
 FCM_MAX_ITER = 100
 
-! Distribution in physical space
+! Initial residual
 FCM_RES_ROS = -FCM_EIJ
+! Initial direction
 FCM_DIR_MIN = -FCM_EIJ
 
-! Compute max of L2 norm
-call FCM_L2NORM(FCM_RES_ROS,FCM_TOL_L2RES_ROS,FCM_L2RES_ROS)
+! Compute L2 norm
+call FCM_L2NORM(FCM_RES_ROS,FCM_L2RES_ROS)
+NORM_EIJ = FCM_L2RES_ROS
 
 !~ print*, 'FCM_L2RES_ROS= ',FCM_L2RES_ROS
 !~ read(*,*)
+TOL = FCM_TOL_L2RES_ROS*NORM_EIJ
+ !print*, 'TOL= ',TOL
+ !read(*,*)
 
-do while ((FCM_L2RES_ROS.gt.FCM_TOL_L2RES_ROS).and.(K.lt.FCM_MAX_ITER))
+! Keep looping as long as relative residual is smaller than TOL
+do while ((FCM_L2RES_ROS.gt.TOL).and.(K.lt.FCM_MAX_ITER))
 
  K = K + 1
-!~   print*, 'FCM_EIJ = ', FCM_EIJ
+ !print*, 'K = ', K
 
  if (K.ge.(FCM_MAX_ITER-1)) then
   if (MYID==0) then
@@ -115,7 +126,9 @@ do while ((FCM_L2RES_ROS.gt.FCM_TOL_L2RES_ROS).and.(K.lt.FCM_MAX_ITER))
 !~   print*, 'FCM_RES_ROS = ', FCM_RES_ROS
 
 ! Compute max of L2 norm
- call FCM_L2NORM(FCM_RES_ROS,FCM_TOL_L2RES_ROS,FCM_L2RES_ROS)!~  
+ call FCM_L2NORM(FCM_RES_ROS,FCM_L2RES_ROS)  
+ !print*, 'FCM_L2RES_ROS = ', FCM_L2RES_ROS
+ !read(*,*)
  
  
  call FCM_PROD_SCAL(FCM_RES_ROS,FCM_RES_ROS,FCM_INC_DIR_ALPHA)

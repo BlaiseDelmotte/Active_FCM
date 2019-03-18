@@ -96,16 +96,15 @@ RANDNUM_POS(2) = sprng()
 RANDNUM_POS(3) = sprng()
 
 !!- x-direction
-XP = LXMAX*RANDNUM_POS(1)
-!!- y-direction
 if (FCM_BC==2) then
- !- mirror plane at LYMAX/2
+ !- mirror plane at LXMAX/2
  !- Particles cannot be closer than 1.1*RAD_MAX to the planes
- YP = (LYMAX/2.0-2.2*MAX_RAD)*RANDNUM_POS(2) + 1.1*MAX_RAD
+ XP = (LXMAX/2.0-2.2*MAX_RAD)*RANDNUM_POS(1) + 1.1*MAX_RAD
 else if (FCM_BC==1) then
- YP = LYMAX*RANDNUM_POS(2)
+ XP = LXMAX*RANDNUM_POS(1)
 end if
-
+!!- y-direction
+YP = LYMAX*RANDNUM_POS(2)
 !!- z-direction
 ZP = LZMAX*RANDNUM_POS(3)
  

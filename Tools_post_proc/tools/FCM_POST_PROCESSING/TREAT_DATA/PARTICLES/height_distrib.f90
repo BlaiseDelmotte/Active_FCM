@@ -81,6 +81,7 @@ DH = 0.02*RADMAX
 NH = (LX/2.0 - 0.0)/DH
 
 print*,'LX = ', LX
+print*,'DH = ', DH
 print*,'RADMAX = ', RADMAX
 print*,'NH = '
 print*, NH
@@ -99,6 +100,7 @@ end do
 
 
 print*, 'DISCRETIZE RANGE OF HEIGHT FOR DISTRIB---> OK'
+print*, 'NSAVES-SAVE_START = ', NSAVES-SAVE_START
 
 
 !=====================================================================
@@ -137,9 +139,7 @@ end do
 
 H_DISTRIB = H_DISTRIB/(NSAVES-SAVE_START+1)
 
-K = 0
-do IND = SAVE_START, NSAVES 
- K = K+1
+do K = 1,NSAVES-SAVE_START
  STD_H_DISTRIB = STD_H_DISTRIB + ( H_DISTRIB_TIME(K,:) - H_DISTRIB )**2
 end do
 
