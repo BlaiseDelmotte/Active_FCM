@@ -43,6 +43,8 @@ real(kind=8)     :: TEMP, TEMP2
 real(kind=8)     :: FXI, FYI, FZI
 real(kind=8)     :: FXIJ, FYIJ, FZIJ
 real(kind=8)     :: MINRAD
+real(kind=8)     :: MAXRAD
+real(kind=8)     :: RATIO_RAD
 
 
 ! Indices which indicate current bucket
@@ -87,8 +89,6 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
    
    RIJSQ = XIJ*XIJ + YIJ*YIJ + ZIJ*ZIJ;
    
-!~    print*,'RIJSQ = ', RIJSQ
-   
    TWOA = FCM_SPHERE_RADP(I) + FCM_SPHERE_RADP(J)
    
    RREFSQ = (FCM_FBRANGE * TWOA)**2
@@ -96,6 +96,8 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
    if (RIJSQ.lt.RREFSQ) then    
     
     MINRAD = min(FCM_SPHERE_RADP(I),FCM_SPHERE_RADP(J))
+    MAXRAD = max(FCM_SPHERE_RADP(I),FCM_SPHERE_RADP(J))
+    RATIO_RAD = MINRAD/MAXRAD
     FOURASQ = TWOA**2
 
     if (RIJSQ.lt.(0.81*FOURASQ)) then
@@ -107,13 +109,9 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
     TEMP2 = TEMP2*TEMP2
     RIJ = dsqrt(RIJSQ)
     
-    FXIJ = FCM_FBLEVEL*TEMP2*TEMP2*XIJ/(TWOA)*MINRAD
-    FYIJ = FCM_FBLEVEL*TEMP2*TEMP2*YIJ/(TWOA)*MINRAD
-    FZIJ = FCM_FBLEVEL*TEMP2*TEMP2*ZIJ/(TWOA)*MINRAD
-    
-!~     FXIJ = FCM_FBLEVEL*TEMP2*TEMP2*XIJ/RIJ
-!~     FYIJ = FCM_FBLEVEL*TEMP2*TEMP2*YIJ/RIJ
-!~     FZIJ = FCM_FBLEVEL*TEMP2*TEMP2*ZIJ/RIJ
+    FXIJ = FCM_FBLEVEL*TEMP2*TEMP2*XIJ/(TWOA)*RATIO_RAD
+    FYIJ = FCM_FBLEVEL*TEMP2*TEMP2*YIJ/(TWOA)*RATIO_RAD
+    FZIJ = FCM_FBLEVEL*TEMP2*TEMP2*ZIJ/(TWOA)*RATIO_RAD
     
     FXI = FXI + FXIJ
     FYI = FYI + FYIJ
@@ -125,14 +123,6 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
 
    
    end if
-   
-!~    print*,'Same Bucket'
-!~    print*, 'I = ', I
-!~    print*, 'J = ', J
-!~    print*, 'FCM_POS_REL_X(I,J) = ', FCM_POS_REL_X(I,J)
-!~    print*, 'FCM_POS_REL_Y(I,J) = ', FCM_POS_REL_Y(I,J)
-!~    print*, 'FCM_POS_REL_Z(I,J)  = ',FCM_POS_REL_Z(I,J) 
-!~    read(*,*)
    
    J = FCM_BUCKET_PART_LIST(J)
    
@@ -165,6 +155,9 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
     if (RIJSQ.lt.RREFSQ) then
     
      MINRAD = min(FCM_SPHERE_RADP(I),FCM_SPHERE_RADP(J))
+     MAXRAD = max(FCM_SPHERE_RADP(I),FCM_SPHERE_RADP(J))
+     RATIO_RAD = MINRAD/MAXRAD
+
      FOURASQ = TWOA**2
      if (RIJSQ.lt.(0.81*FOURASQ)) then
       print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA
@@ -175,13 +168,9 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
      TEMP2 = TEMP2*TEMP2
      RIJ = dsqrt(RIJSQ)
      
-     FXIJ = FCM_FBLEVEL*TEMP2*TEMP2*XIJ/(TWOA)*MINRAD
-     FYIJ = FCM_FBLEVEL*TEMP2*TEMP2*YIJ/(TWOA)*MINRAD
-     FZIJ = FCM_FBLEVEL*TEMP2*TEMP2*ZIJ/(TWOA)*MINRAD
-     
-!~     FXIJ = FCM_FBLEVEL*TEMP2*TEMP2*XIJ/RIJ
-!~     FYIJ = FCM_FBLEVEL*TEMP2*TEMP2*YIJ/RIJ
-!~     FZIJ = FCM_FBLEVEL*TEMP2*TEMP2*ZIJ/RIJ
+     FXIJ = FCM_FBLEVEL*TEMP2*TEMP2*XIJ/(TWOA)*RATIO_RAD
+     FYIJ = FCM_FBLEVEL*TEMP2*TEMP2*YIJ/(TWOA)*RATIO_RAD
+     FZIJ = FCM_FBLEVEL*TEMP2*TEMP2*ZIJ/(TWOA)*RATIO_RAD
      
      FXI = FXI + FXIJ
      FYI = FYI + FYIJ
@@ -218,7 +207,7 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
  
 end do
 
-! Simple addition of the contribution of each processor to the velocity average
+! Simple addition of the contribution of each processor to the force barrier
 call MPI_ALLREDUCE(FCM_FORCE_TEMP,FCM_FORCE,NPART_FULL*3,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,IERR)
 
 
