@@ -149,7 +149,7 @@ open(unit=150,          &
       access='direct',    &
 !      action='write',      &
       recl=RECSIZE,       &
-      form='binary')
+      form='unformatted')  ! Had to change 'binary' to 'unformatted' to make it compile with mpifort
 
 if(SOLVE_SCALAR) then
 write(unit=150,rec=1+MYID)  &

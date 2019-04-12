@@ -399,13 +399,14 @@ RECSIZE = (SIZE_INT +  NPMAX_LOC*SIZE_REAL*NVARIABLE)*NIG
 !- Define file name
 FILENAME = 'traj.ini'
 
+
 open(unit=150,          &
       file=trim(FILENAME),&
       status='old',       &
       access='direct',    &
       action='read',      &
       recl=RECSIZE,       &
-      form='binary')
+      form='unformatted') ! Had to change 'binary' to 'unformatted' to make it compile with mpifort 
 
 if(SOLVE_SCALAR) then
 read(unit=150,rec=1+MYID)  &
