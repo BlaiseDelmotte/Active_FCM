@@ -179,7 +179,7 @@ integer :: I, J, K,M, IND, IND_I, IND_J
 integer :: ERR_FILE_RDF
 
 
-PPI = 4.0*datan(1.0)
+PPI = 4.0*datan(1.0d0)
 
 print*,' '
 print*,'-------------------END POSITIONS, VELOCITIES CORREL--------------------------- '

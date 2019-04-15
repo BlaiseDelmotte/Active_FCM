@@ -271,7 +271,7 @@ else
 end if
 
 if (PART_START==1) then
- MAX_DISPNORM = dsqrt(3.0)*100.0*RAD *1.5
+ MAX_DISPNORM = dsqrt(3.0d0)*100.0*RAD *1.5
  MAX_DISPX = 100.0*RAD *1.5
 !~ !  MAX_DISPNORM = dsqrt(3.0)*10.0*RAD *1.5
 !~ ! MAX_DISPX = 10.0*RAD *1.5
@@ -280,7 +280,7 @@ if (PART_START==1) then
 else 
 !~  MAX_DISPNORM = dsqrt(3.0)*20.0*RAD *1.5
 !~  MAX_DISPX = 20.0*RAD *1.5
- MAX_DISPNORM = dsqrt(3.0)*100.0*RAD *1.5
+ MAX_DISPNORM = dsqrt(3.0d0)*100.0*RAD *1.5
  MAX_DISPX = 100.0*RAD *1.5
  MAX_DISPY = MAX_DISPX
  MAX_DISPZ = MAX_DISPX

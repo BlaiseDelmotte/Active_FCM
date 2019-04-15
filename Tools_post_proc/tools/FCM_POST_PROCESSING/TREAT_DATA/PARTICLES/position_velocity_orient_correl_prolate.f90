@@ -175,7 +175,7 @@ integer :: I, J, K,M, IND, IND_I, IND_J
 integer :: ERR_FILE_RDF
 
 
-PPI = 4.0*datan(1.0)
+PPI = 4.0*datan(1.0d0)
 
 print*,' '
 print*,'-------------------END POSITIONS, VELOCITIES CORREL--------------------------- '
@@ -192,7 +192,7 @@ NTAU = 100
 
 L_2 = L/2.0 
 TWORADMIN = 2.0*RADMIN
-MAX_DIST = L_2*dsqrt(3.0)
+MAX_DIST = L_2*dsqrt(3.0d0)
 print*,'MAX_DIST/RADMAX = ', MAX_DIST/RADMAX
 
 
@@ -201,7 +201,7 @@ AR = RADMAX/RADMIN
 
 FOCAL_DIST = dsqrt(RADMAX**2 - RADMIN**2)
 
-SIGMA_MIN = dcosh(datanh(1.0/AR))
+SIGMA_MIN = dcosh(datanh(1.0d0/AR))
 SIGMA_MAX = 1.01*MAX_DIST/FOCAL_DIST
 
 TAU_MIN = -0.99999999

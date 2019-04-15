@@ -69,7 +69,7 @@ write(1984,'(A)') '   </Points>'
 write(1984,'(A)') '   <PointData>'
 !1. vitesses des particules
 write(1984,'(A)') '        <DataArray type="Float32" Name="Vitesse" NumberOfComponents="3" format="ascii">'
-write(1984,*)     (VEL(IP,1)/(FCM_VSW*RADP(IP)), (VEL(IP,2)/(FCM_VSW*RADP(IP)), VEL(IP,3)/(FCM_VSW*RADP(IP)), IP=1,NP)
+write(1984,*)     (VEL(IP,1)/(FCM_VSW*RAD(IP)), VEL(IP,2)/(FCM_VSW*RAD(IP)), VEL(IP,3)/(FCM_VSW*RAD(IP)), IP=1,NP)
 write(1984,'(A)') '        </DataArray>'
 !2. rotation des particules
 write(1984,'(A)') '        <DataArray type="Float32" Name="Rotation" NumberOfComponents="3" format="ascii">'

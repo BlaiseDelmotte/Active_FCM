@@ -5,7 +5,7 @@
 module PARTICLE_PARALLEL
 
 use DNS_DIM
-
+use MPI
 implicit none
 
 type PARTTYPE
@@ -104,6 +104,7 @@ contains
 
     integer, dimension(0:1) ::  oldtypes, blockcounts, offsets(0:1)
 !    integer(kind=MPI_OFFSET_KIND) :: extent
+    integer :: lb
     integer :: extent
 
 !   Setup description of the NDOUBLE MPI_DOUBLE_PRECISION fields in PARTTYPE  
@@ -113,12 +114,14 @@ contains
 
 !  Setup description of the NINTEGER MPI_INTEGER fields in PARTYPE
 !  Need to first figure offset by getting size of MPI_DOUBLE_PRECISION 
+!   call MPI_TYPE_GET_EXTENT(MPI_DOUBLE_PRECISION, lb, extent, ierr) 
     call MPI_TYPE_EXTENT(MPI_DOUBLE_PRECISION, extent, ierr) 
     offsets(1) = NDOUBLE * extent 
     oldtypes(1) = MPI_INTEGER 
     blockcounts(1) = NINTEGER 
 
 !  Now define structured type and commit it  
+!   call MPI_TYPE_CREATE_STRUCT(2, blockcounts, offsets, oldtypes, MPI_PARTICLETYPE, ierr) 
     call MPI_TYPE_STRUCT(2, blockcounts, offsets, oldtypes, MPI_PARTICLETYPE, ierr) 
     call MPI_TYPE_COMMIT(MPI_PARTICLETYPE, ierr) 
 
