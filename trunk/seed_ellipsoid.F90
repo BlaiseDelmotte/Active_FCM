@@ -117,9 +117,9 @@ ZP = LZMAX*RANDNUM_POS(3)
 ! All particles orientation are set in the x-direction
 if (FCM_INIT_PART_ORIENT==0) then
 
- ANGLE = PPI/2.0
-
- AXIS = 1.0
+ ANGLE = 0.0
+ AXIS = 0.0
+ AXIS(2) = 1.0
 
  QUAT1 = cos(ANGLE/2.0)
  QUAT2 = AXIS(1) * sin(ANGLE/2.0)
