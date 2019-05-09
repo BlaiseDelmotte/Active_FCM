@@ -86,7 +86,7 @@ do IP = 1, FCM_NSPHERE
  !- Gaussians are non-zero on the boundary itself
  if (FCM_BC == 2) then
   if ( (FCM_LHNODE(IP,1)+FCM_NGDH(IP)).gt.(NX/2+1) ) then
-    FCM_SPHERE_GAUSS1(IP,FCM_NGDH(IP)-FCM_LHNODE(IP,1)+NX/2+1:ND) = 0.0
+    FCM_SPHERE_GAUSS1(IP,FCM_NGDH(IP)-FCM_LHNODE(IP,1)+NX/2+1:FCM_NGD(IP)) = 0.0
   end if
   if ( (FCM_LHNODE(IP,1)-FCM_NGDH(IP)+1).lt.1 ) then
     FCM_SPHERE_GAUSS1(IP,1:FCM_NGDH(IP)-FCM_LHNODE(IP,1)-1) = 0.0
