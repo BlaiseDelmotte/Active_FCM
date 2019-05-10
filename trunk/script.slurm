@@ -5,10 +5,10 @@
 #SBATCH --cpus-per-task=1
 #SBATCH -J NS3D_SW
 #SBATCH -C HSW24
-#SBATCH --time=01:00:00
+#SBATCH --time=00:05:00
 #SBATCH --mail-user=blaise.delmotte@ladhyx.polytechnique.fr
 
-export WALLTIME=3600 # walltime pour PBS en secondes
+export WALLTIME=300 # walltime pour PBS en secondes
 
 
 ###################################
@@ -24,6 +24,12 @@ module load intel/17.2 openmpi/intel/2.0.2
 #module load mpiprof_sp1.1.106_mpi_4.1.0.030 # pour intelmpi
 ###################################
 
+
+###################################
+# ALLOW AS MANY FILES AS NEEDED TO BE OPEN #
+###################################
+ulimit -s unlimited
+
 ###################################
 # OUTPUT_DIRECTORY #
 ###################################
@@ -34,7 +40,7 @@ echo ' JOB WILL BE RUN FROM : ' $dirname
 echo '------------------------------------------------'
 
 
-export postprocdir=$HOME/NS3D_active_brownian_bidisperse/Tools_post_proc/tools/FCM_POST_PROCESSING/TREAT_DATA/PARTICLES/
+export postprocdir=$HOME/NS3D_active_brownian_bidisperse/Tools_post_proc/tools/FCM_POST_PROCESSING/TREAT_DATA/PARTICLES
 echo '------------------------------------------------'
 echo ' PARTICLE POST_PROC EXECUTABLE COPIED FROM : ' $postprocdir
 echo '------------------------------------------------'
@@ -45,6 +51,7 @@ cp ns3d $dirname
 cp *.in $dirname
 cp *.ini $dirname
 cp $postprocdir/treat_part $dirname
+cp $postprocdir/stat_choice.in $dirname
 cd $dirname
 ls -al
 
