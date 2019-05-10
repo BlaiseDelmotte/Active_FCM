@@ -50,7 +50,7 @@ SPRNG_POINTER :: MY_STREAM
 
 ! Initialize the streams for the random number generationwith SPRNG
 SEED = make_sprng_seed()
-MY_STREAM = init_sprng(4,SEED,SPRNG_DEFAULT)
+MY_STREAM = init_sprng(SEED,SPRNG_DEFAULT,4)
 
 call FCM_INITIATION_PARTICLE_GAUSSIAN 
 

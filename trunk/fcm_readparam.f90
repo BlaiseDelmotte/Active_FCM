@@ -213,7 +213,6 @@ else
  end if 
  
  
- print*,'FCM_NSWIM = ', FCM_NSWIM
 !~  read(*,*)
  
  FCM_USE_QUAT = 0
