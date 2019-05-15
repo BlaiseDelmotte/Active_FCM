@@ -458,7 +458,9 @@ subroutine SAVE_MPIIO(VAR,FILENAME)
                                     IERR  )
 
   ! Total dimensions of the array to write
-  DIMSUIDS(1:3) = IEND(1) - ISTART(1) + 1 ! NX
+  DIMSUIDS(1) = NX ! NX
+  DIMSUIDS(2) = NY ! NY
+  DIMSUIDS(3) = NZ ! NZ
 
   ! Position in the file (in bytes)
   POS_FILE = 0
@@ -480,7 +482,7 @@ subroutine SAVE_MPIIO(VAR,FILENAME)
   VARCOUNT(1) = IEND(1) - ISTART(1) + 1
   VARCOUNT(2) = IEND(2) - ISTART(2) + 1
   VARCOUNT(3) = IEND(3) - ISTART(3) + 1
- 
+
   ! Derivated type creation : a subarray different for each proc 
   call MPI_Type_create_subarray(3, DIMSUIDS, VARCOUNT, VARSTART, &
                                 MPI_ORDER_FORTRAN, MPI_REAL8, FILETYPE, IERR)
