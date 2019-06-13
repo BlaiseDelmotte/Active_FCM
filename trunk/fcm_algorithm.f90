@@ -253,7 +253,6 @@ integer :: I
  end if
   
  call FCM_ROTATION_FILTER
-
  if (mod(NCYCLE,FOUT1)==1) then
   call SAVE_FLUID(NCYCLE)
  end if 
@@ -273,6 +272,7 @@ integer :: I
   call FCM_ADV_PARTICLE_ORIENTATION_PSWIM_ONLY(DTIME)
  end if
 
+ call FCM_CHECK_PARTICLE_POSITION
   
 !!!!!!!!!! TO COMMENT !!!!!!!!!!!!!!!!!!!!
  !! JUST A TEST TO CHECK THAT MIRROR IMAGE HAS SAME VELOCITY
@@ -286,16 +286,15 @@ integer :: I
 !~  end if
 !!!!!!!!!! TO COMMENT !!!!!!!!!!!!!!!!!!!!
 
-!~ if (MYID==0) then
-!~ print*,'FCM_PSWIM = ', FCM_PSWIM 
-!~     print*, 'FCM_XP/FCM_SPHERE_RADP(1)  = ', FCM_XP/FCM_SPHERE_RADP(1)
-!~    print*, 'FCM_YP/FCM_SPHERE_RADP(1) = ', FCM_YP/FCM_SPHERE_RADP(1)
-!~    print*, 'FCM_ZP/FCM_SPHERE_RADP(1) = ', FCM_ZP/FCM_SPHERE_RADP(1)   
-!~    print*, 'FCM_UP(:,1) = ', FCM_UP(:,1)  
-!~    print*, 'FCM_VP(:,1) = ', FCM_VP(:,1)  
-!~    print*, 'FCM_WP(:,1) = ', FCM_WP(:,1)  
-!~    read(*,*)
-!~  end if
+! print*, MYID
+! print*,'FCM_PSWIM = ', FCM_PSWIM 
+! print*, 'FCM_XP/FCM_SPHERE_RADP(1)  = ', FCM_XP/FCM_SPHERE_RADP(1)
+! print*, 'FCM_YP/FCM_SPHERE_RADP(1) = ', FCM_YP/FCM_SPHERE_RADP(1)
+! print*, 'FCM_ZP/FCM_SPHERE_RADP(1) = ', FCM_ZP/FCM_SPHERE_RADP(1)   
+! print*, 'FCM_UP(:,1) = ', FCM_UP(:,1)  
+! print*, 'FCM_VP(:,1) = ', FCM_VP(:,1)  
+! print*, 'FCM_WP(:,1) = ', FCM_WP(:,1)  
+! read(*,*)
 !~    print*,'FCM_FORCE = ', FCM_FORCE
 !~    print*,'FCM_VSW = ', FCM_VSW
 !~    print*,'FCM_VSW/rad = ', FCM_VSW/FCM_SPHERE_RADP
