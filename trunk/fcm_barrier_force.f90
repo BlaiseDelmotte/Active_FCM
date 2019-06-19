@@ -52,6 +52,8 @@ integer :: JCELL, JCELLO
 
 ! Indices for loops
 integer :: I, J, ICELL, NABOR
+!- MPI Variables
+integer :: ERRCODE
 
 !- Zeros necessary variables
 FXI = 0.0
@@ -159,8 +161,9 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
      RATIO_RAD = MINRAD/MAXRAD
 
      FOURASQ = TWOA**2
-     if (RIJSQ.lt.(0.81*FOURASQ)) then
+     if (RIJSQ.lt.(0.49*FOURASQ)) then
       print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA
+      call MPI_Abort(MPI_COMM_WORLD, ERRCODE, IERR)
      end if
 
      TEMP = RREFSQ - FOURASQ

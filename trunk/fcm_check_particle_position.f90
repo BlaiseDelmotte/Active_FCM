@@ -82,7 +82,7 @@ end if
    end if
    call MPI_Abort(MPI_COMM_WORLD, ERRCODE, IERR) 
   end if
-  if ( (FCM_BC.eq.2).and.(FCM_XP(I).gt.(LXMAX/2.0)) ) then
+  if ( (FCM_BC.eq.2).and.( (FCM_XP(I).gt.(LXMAX/2.0-0.8*FCM_SPHERE_RADP(I))).or.(FCM_XP(I).lt.(0.8*FCM_SPHERE_RADP(I))) ) ) then
    if (MYID==0) then
     print*, 'Particle went through boundary:'
     print*, I, 0, LXMAX/2.0, FCM_XP(I)
