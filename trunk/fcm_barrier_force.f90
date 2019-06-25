@@ -102,8 +102,9 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
     RATIO_RAD = MINRAD/MAXRAD
     FOURASQ = TWOA**2
 
-    if (RIJSQ.lt.(0.81*FOURASQ)) then
-     print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA
+    if (RIJSQ.lt.(0.49*FOURASQ)) then
+      print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA, 'I,J = ', I,J
+      call MPI_Abort(MPI_COMM_WORLD, ERRCODE, IERR)
     end if
 
     TEMP = RREFSQ - FOURASQ
@@ -162,7 +163,7 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
 
      FOURASQ = TWOA**2
      if (RIJSQ.lt.(0.49*FOURASQ)) then
-      print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA
+      print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA, 'I,J = ', I,J
       call MPI_Abort(MPI_COMM_WORLD, ERRCODE, IERR)
      end if
 
