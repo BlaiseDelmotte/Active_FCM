@@ -56,44 +56,35 @@ FCM_BUCKET_SIZE_X =  2.0*FCM_FBRANGE*FCM_MAXRAD
 FCM_BUCKET_SIZE_Y =  FCM_BUCKET_SIZE_X 
 FCM_BUCKET_SIZE_Z =  FCM_BUCKET_SIZE_X 
 
+! If we have a boundary at LX/2 then check we don't overlap the boundary
+if (FCM_BC.eq.2) then
+ !- Match bucket size to have an integer number of buckets
+ if(FCM_BUCKET_SIZE_X.gt.LXMAX/2.0)then
+   FCM_BUCKET_SIZE_X = LXMAX/2.0
+ end if
+ if(mod(LXMAX/2.0,FCM_BUCKET_SIZE_X).ne.0)then
+  FCM_BUCKET_SIZE_X = LXMAX/2.0/real(floor(LXMAX/2.0/FCM_BUCKET_SIZE_X))
+ end if
+ FCM_BUCKET_NB_DIR_X = floor(LXMAX/2.0/FCM_BUCKET_SIZE_X)
+else ! If periodic boundary at LX
+ if(mod(LXMAX,FCM_BUCKET_SIZE_X).ne.0)then
+  FCM_BUCKET_SIZE_X = LXMAX/real(floor(LXMAX/FCM_BUCKET_SIZE_X))
+ end if
+ !- Number of bucket along direction
+ FCM_BUCKET_NB_DIR_X = floor(LXMAX/FCM_BUCKET_SIZE_X)
+end if 
 
-!~ !- Match bucket size to have an integer number of buckets
-!~ if(FCM_BUCKET_SIZE.gt.LXMAX/2.0)then
-!~  FCM_BUCKET_SIZE = LXMAX/2.0
-!~ end if
- 
-
-if(mod(LXMAX,FCM_BUCKET_SIZE_X).ne.0)then
- FCM_BUCKET_SIZE_X = LXMAX/real(floor(LXMAX/FCM_BUCKET_SIZE_X))
-end if
 
 if(mod(LYMAX,FCM_BUCKET_SIZE_Y).ne.0)then
  FCM_BUCKET_SIZE_Y = LYMAX/real(floor(LYMAX/FCM_BUCKET_SIZE_Y))
 end if
+FCM_BUCKET_NB_DIR_Y = floor(LYMAX/FCM_BUCKET_SIZE_Y)
 
 if(mod(LZMAX,FCM_BUCKET_SIZE_Z).ne.0)then
  FCM_BUCKET_SIZE_Z = LZMAX/real(floor(LZMAX/FCM_BUCKET_SIZE_Z))
 end if
-
-
-
-
-!- Number of bucket in each direction
-FCM_BUCKET_NB_DIR_X = floor(LXMAX/FCM_BUCKET_SIZE_X)
-FCM_BUCKET_NB_DIR_Y = floor(LYMAX/FCM_BUCKET_SIZE_Y)
 FCM_BUCKET_NB_DIR_Z = floor(LZMAX/FCM_BUCKET_SIZE_Z)
 
-!!!!! POTENTIAL OPTIMIZATION FOR X-WALL TO IMPROVE LOAD BALANCING
-!!! NEED TO BE THOUGHT 
-!if (FCM_BC==1) then
-! !- if 3D periodic domain we mesh the full length in each directions
-! !- with buckets
-! FCM_BUCKET_NB_DIR_X = floor(LXMAX/FCM_BUCKET_SIZE)
-!else if (FCM_BC==2) then
-! !- if slip at x=LXMAX/2, only mesh that part 
-! FCM_BUCKET_NB_DIR_X = floor(LXMAX/2.0/FCM_BUCKET_SIZE)
-!end if
-!!!!! POTENTIAL OPTIMIZATION FOR X-WALL TO IMPROVE LOAD BALANCING
 
 !- Number of bucket in the whole box
 FCM_BUCKET_NB_TOT = FCM_BUCKET_NB_DIR_X &
