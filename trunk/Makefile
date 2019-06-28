@@ -71,6 +71,7 @@ fcm_bucket_distribution.o \
 fcm_bucket_allocations.o \
 fcm_bucket_build_map.o \
 fcm_bucket_inumber.o \
+fcm_check_particle_position.o \
 fcm_compute_bucket_lists.o \
 fcm_compute_gaussian_env.o \
 fcm_compute_gaussian_support.o \
