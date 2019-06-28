@@ -74,6 +74,10 @@ else ! If periodic boundary at LX
  FCM_BUCKET_NB_DIR_X = floor(LXMAX/FCM_BUCKET_SIZE_X)
 end if 
 
+if (MYID.eq.0) then
+ print*, 'FCM_BUCKET_SIZE_X/(LXMAX/2.0), FCM_BUCKET_NB_DIR_X = ',FCM_BUCKET_SIZE_X/(LXMAX/2.0), FCM_BUCKET_NB_DIR_X
+end if
+
 
 if(mod(LYMAX,FCM_BUCKET_SIZE_Y).ne.0)then
  FCM_BUCKET_SIZE_Y = LYMAX/real(floor(LYMAX/FCM_BUCKET_SIZE_Y))

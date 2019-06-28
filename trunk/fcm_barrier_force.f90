@@ -66,7 +66,7 @@ FCM_FORCE_TEMP(:,:) = 0.0
 do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP 
  
  I = FCM_BUCKET_HEAD(ICELL)
- 
+
  do while(I>-1)
  
   XI = FCM_XP(I)
@@ -78,9 +78,9 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
   FZI = FCM_FORCE_TEMP(I,3)
   
   J = FCM_BUCKET_PART_LIST(I)
-  
+   
   do while(J>-1)
-  
+    
    XIJ = XI - FCM_XP(J)
    YIJ = YI - FCM_YP(J)
    ZIJ = ZI - FCM_ZP(J)
@@ -103,6 +103,7 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
     FOURASQ = TWOA**2
 
     if (RIJSQ.lt.(0.49*FOURASQ)) then
+      print*,MYID,'ICELL = ', ICELL
       print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA, ', I, J = ', I,J
       call MPI_Abort(MPI_COMM_WORLD, ERRCODE, IERR)
     end if
@@ -134,71 +135,75 @@ do ICELL = FCM_LOC_BUCKET_START, FCM_LOC_BUCKET_STOP
   JCELLO = 13*(ICELL-1)
   
   do NABOR = 1, 13
-  
+    
    JCELL = FCM_BUCKET_MAPLIST(JCELLO + NABOR)
-   J = FCM_BUCKET_HEAD(JCELL)
+   ! Check that the bucket does not see itself twice
+   if (JCELL.ne.ICELL) then
+ 
+    J = FCM_BUCKET_HEAD(JCELL)
+     
+    do while(J>-1)
    
-   do while(J>-1)
-  
-    XIJ = XI - FCM_XP(J)
-    YIJ = YI - FCM_YP(J)
-    ZIJ = ZI - FCM_ZP(J)
-   
-    XIJ = XIJ - LXMAX* real(int(XIJ/(0.5*LXMAX)))
-    YIJ = YIJ - LYMAX* real(int(YIJ/(0.5*LYMAX)))
-    ZIJ = ZIJ - LZMAX* real(int(ZIJ/(0.5*LZMAX)))
+     XIJ = XI - FCM_XP(J)
+     YIJ = YI - FCM_YP(J)
+     ZIJ = ZI - FCM_ZP(J)
     
-    RIJSQ = XIJ*XIJ + YIJ*YIJ + ZIJ*ZIJ;
-!~     print*,'RIJSQ = ', RIJSQ
-        
-    TWOA = FCM_SPHERE_RADP(I) + FCM_SPHERE_RADP(J)
-   
-    RREFSQ = (FCM_FBRANGE * TWOA)**2
-        
-    if (RIJSQ.lt.RREFSQ) then
+     XIJ = XIJ - LXMAX* real(int(XIJ/(0.5*LXMAX)))
+     YIJ = YIJ - LYMAX* real(int(YIJ/(0.5*LYMAX)))
+     ZIJ = ZIJ - LZMAX* real(int(ZIJ/(0.5*LZMAX)))
+     
+     RIJSQ = XIJ*XIJ + YIJ*YIJ + ZIJ*ZIJ;
+ !~     print*,'RIJSQ = ', RIJSQ
+         
+     TWOA = FCM_SPHERE_RADP(I) + FCM_SPHERE_RADP(J)
     
-     MINRAD = min(FCM_SPHERE_RADP(I),FCM_SPHERE_RADP(J))
-     MAXRAD = max(FCM_SPHERE_RADP(I),FCM_SPHERE_RADP(J))
-     RATIO_RAD = MINRAD/MAXRAD
-
-     FOURASQ = TWOA**2
-     if (RIJSQ.lt.(0.49*FOURASQ)) then
-      print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA, ', I, J = ', I,J
-      call MPI_Abort(MPI_COMM_WORLD, ERRCODE, IERR)
+     RREFSQ = (FCM_FBRANGE * TWOA)**2
+         
+     if (RIJSQ.lt.RREFSQ) then
+     
+      MINRAD = min(FCM_SPHERE_RADP(I),FCM_SPHERE_RADP(J))
+      MAXRAD = max(FCM_SPHERE_RADP(I),FCM_SPHERE_RADP(J))
+      RATIO_RAD = MINRAD/MAXRAD
+ 
+      FOURASQ = TWOA**2
+      if (RIJSQ.lt.(0.49*FOURASQ)) then
+       print*,MYID,'ICELL = ', ICELL
+       print*,MYID,'RIJ/TWOA = ', dsqrt(RIJSQ)/TWOA, ', I, J = ', I,J
+       call MPI_Abort(MPI_COMM_WORLD, ERRCODE, IERR)
+      end if
+ 
+      TEMP = RREFSQ - FOURASQ
+      TEMP2 = (RREFSQ - RIJSQ)/TEMP
+      TEMP2 = TEMP2*TEMP2
+      RIJ = dsqrt(RIJSQ)
+      
+      FXIJ = FCM_FBLEVEL*TEMP2*TEMP2*XIJ/(TWOA)*RATIO_RAD
+      FYIJ = FCM_FBLEVEL*TEMP2*TEMP2*YIJ/(TWOA)*RATIO_RAD
+      FZIJ = FCM_FBLEVEL*TEMP2*TEMP2*ZIJ/(TWOA)*RATIO_RAD
+      
+      FXI = FXI + FXIJ
+      FYI = FYI + FYIJ
+      FZI = FZI + FZIJ
+      
+      FCM_FORCE_TEMP(J,1) = FCM_FORCE_TEMP(J,1) - FXIJ
+      FCM_FORCE_TEMP(J,2) = FCM_FORCE_TEMP(J,2) - FYIJ
+      FCM_FORCE_TEMP(J,3) = FCM_FORCE_TEMP(J,3) - FZIJ
+    
      end if
-
-     TEMP = RREFSQ - FOURASQ
-     TEMP2 = (RREFSQ - RIJSQ)/TEMP
-     TEMP2 = TEMP2*TEMP2
-     RIJ = dsqrt(RIJSQ)
      
-     FXIJ = FCM_FBLEVEL*TEMP2*TEMP2*XIJ/(TWOA)*RATIO_RAD
-     FYIJ = FCM_FBLEVEL*TEMP2*TEMP2*YIJ/(TWOA)*RATIO_RAD
-     FZIJ = FCM_FBLEVEL*TEMP2*TEMP2*ZIJ/(TWOA)*RATIO_RAD
-     
-     FXI = FXI + FXIJ
-     FYI = FYI + FYIJ
-     FZI = FZI + FZIJ
-     
-     FCM_FORCE_TEMP(J,1) = FCM_FORCE_TEMP(J,1) - FXIJ
-     FCM_FORCE_TEMP(J,2) = FCM_FORCE_TEMP(J,2) - FYIJ
-     FCM_FORCE_TEMP(J,3) = FCM_FORCE_TEMP(J,3) - FZIJ
-   
-    end if
+ !~     print*,'Neighbouring Bucket'
+ !~     print*, 'I = ', I
+ !~     print*, 'J = ', J
+ !~     print*, 'FCM_POS_REL_X(I,J) = ', FCM_POS_REL_X(I,J)
+ !~     print*, 'FCM_POS_REL_Y(I,J) = ', FCM_POS_REL_Y(I,J)
+ !~     print*, 'FCM_POS_REL_Z(I,J)  = ',FCM_POS_REL_Z(I,J) 
+ !~     read(*,*)
+        
     
-!~     print*,'Neighbouring Bucket'
-!~     print*, 'I = ', I
-!~     print*, 'J = ', J
-!~     print*, 'FCM_POS_REL_X(I,J) = ', FCM_POS_REL_X(I,J)
-!~     print*, 'FCM_POS_REL_Y(I,J) = ', FCM_POS_REL_Y(I,J)
-!~     print*, 'FCM_POS_REL_Z(I,J)  = ',FCM_POS_REL_Z(I,J) 
-!~     read(*,*)
-       
-   
-    J = FCM_BUCKET_PART_LIST(J)
-   
-   end do 
-  
+     J = FCM_BUCKET_PART_LIST(J)
+    
+    end do 
+   end if 
   end do
   
   FCM_FORCE_TEMP(I,1) = FXI
