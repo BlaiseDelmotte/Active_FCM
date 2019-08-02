@@ -61,11 +61,12 @@ PSWIM_SPH = 0.0
 
 do IND = 1, NSAVES
  do I = 1, PART_END-PART_START+1 
- 
+  ! theta: angle between pswim and x-axis
+  ! phi: angle between y-axis and projection of pswim onto yz-plane  
   ! In spherical coordinates (theta,phi)
-  PSWIM_SPH(IND,I,1) = dacos( PSWIM(IND,I,3) ) 
+  PSWIM_SPH(IND,I,1) = dacos( PSWIM(IND,I,1) ) 
   
-  PSWIM_SPH(IND,I,2) = datan2( PSWIM(IND,I,2), PSWIM(IND,I,1) )
+  PSWIM_SPH(IND,I,2) = datan2( PSWIM(IND,I,3), PSWIM(IND,I,2) )
   if (PSWIM_SPH(IND,I,2)<0) then
    PSWIM_SPH(IND,I,2) = PSWIM_SPH(IND,I,2) + 2.0*PPI
   end if
