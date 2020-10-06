@@ -20,10 +20,6 @@ subroutine FCM_VELOCITY_FILTER
 !!====================================================================
 !! Velocity filtering: 
 !!------------------------------
-!!
-!! TO DO : 
-!!        1) If ellipsoid
-!!------------------------------
 !! WARNING: We use temporary variables before performing the sum of each
 !! proc contribution
 !!------------------------------

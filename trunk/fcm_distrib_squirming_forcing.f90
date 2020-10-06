@@ -27,15 +27,6 @@ subroutine FCM_DISTRIB_SQUIRMING_FORCING
 !! dipole on the 2nd derivative of the dipole gaussian enveloppe
 !!
 !!====================================================================
-!! Forcing: 
-!!------------------------------
-!!
-!! TO DO : 
-!!        1) If ellipsoid
-!!------------------------------
-!! WARNING: to save memory, we store  the resulting forcing 
-!! field in UFLU, VFLU, WFLU
-!!------------------------------
 !!====================================================================
 
 use WORK_ARRAYS
@@ -104,8 +95,6 @@ do IP = 1, FCM_NSWIM(2)
   ! Only compute the force projection for the piece of gaussian within the block
   if ( (IZ.GE.ISTART(3)) .AND. (IZ.LE.(IEND(3))) ) then 
   
-!~    FCM_HCOEFF1 = FCM_SPHERE_POTDIP_GAUSS3_SQ(IP,K) 
-!~    FCM_SCOEFF1 = FCM_SPHERE_GAUSS3_SQ(IP,K) 
    
    FCM_HCOEFF1 = FCM_SPHERE_DIP_GAUSS3(IP,K) / FCM_SPHERE_ANORM_POTDIP(IP)**3
    FCM_SCOEFF1 = FCM_SPHERE_GAUSS3(IP,K) 
@@ -127,9 +116,6 @@ do IP = 1, FCM_NSWIM(2)
       
     ! Only compute the force projection for the piece of gaussian within the block
     if ( (IY.GE.ISTART(2)).AND.(IY.LE.(IEND(2))) ) then 
-    
-!~      FCM_HCOEFF2 = FCM_SPHERE_POTDIP_GAUSS2_SQ(IP,J)*FCM_HCOEFF1
-!~      FCM_SCOEFF2 = FCM_SPHERE_GAUSS2_SQ(IP,J)*FCM_SCOEFF1
      
      FCM_HCOEFF2 = FCM_SPHERE_DIP_GAUSS2(IP,J)*FCM_HCOEFF1
      FCM_SCOEFF2 = FCM_SPHERE_GAUSS2(IP,J)*FCM_SCOEFF1     
@@ -149,10 +135,6 @@ do IP = 1, FCM_NSWIM(2)
       IX = FCM_SPHERE_IXP(IP,I)
       
       
-      
-!~       FCM_HCOEFF3 = FCM_SPHERE_POTDIP_GAUSS1_SQ(IP,I)*FCM_HCOEFF2
-!~       FCM_SCOEFF3 = FCM_SPHERE_GAUSS1_SQ(IP,I)*FCM_SCOEFF2
-      
       FCM_HCOEFF3 = FCM_SPHERE_DIP_GAUSS1(IP,I)*FCM_HCOEFF2
       FCM_SCOEFF3 = FCM_SPHERE_GAUSS1(IP,I)*FCM_SCOEFF2
       
@@ -164,12 +146,6 @@ do IP = 1, FCM_NSWIM(2)
       FCM_STEMP3X = FCM_STEMP2X + G11*XX
       FCM_STEMP3Y = FCM_STEMP2Y + G21*XX
       FCM_STEMP3Z = FCM_STEMP2Z + G31*XX
-      
-!~       print*, 'IX, IY, IZ = ', IX, IY, IZ
-!~       print*, 'XX2, YY2, ZZ2  = ', XX2, YY2, ZZ2
-!~       print*, 'FCM_HTEMP3  = ', FCM_HTEMP3
-!~       print*, 'FCM_HTEMP3*FCM_HCOEFF3  = ', FCM_HTEMP3*FCM_HCOEFF3
-!~       read(*,*)
            
       TMPPHY(IX,IY,IZ)  = TMPPHY(IX,IY,IZ)  & 
                         + FCM_HCOEFF3 * FCM_HTEMP3 * FCM_HI(IP,1) &

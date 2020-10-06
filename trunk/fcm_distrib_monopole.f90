@@ -19,14 +19,6 @@ subroutine FCM_DISTRIB_MONOPOLE
 !! Here the monopole forcing is distributed on the monopole 
 !! Gaussian enveloppe.
 !!====================================================================
-!! Forcing: 
-!!------------------------------
-!!
-!! TO DO : 
-!!        1) If ellipsoid
-!!------------------------------
-!! WARNING: to save memory, we store  the resulting forcing 
-!! field in UFLU, VFLU, WFLU
 !!------------------------------
 !!====================================================================
 

@@ -46,41 +46,7 @@ implicit none
 integer, intent(in) :: NCYCLE
 
 integer :: I
-  
-
-!!~  if (MYID==0) then
-!~ if (NCYCLE==1) then
-!~  FCM_XP(1) = LXMAX/2.0 - FCM_SPHERE_RADP(1) 
-! FCM_XP(1) =  FCM_SPHERE_RADP(1) 
-!~ !!~   FCM_XP(1) = 01.57
-!~ 
-!~  if( NPART_FULL==2) then
-!~   FCM_XP(2) = LXMAX/2.0 + FCM_SPHERE_RADP(1)
-!~   
-!~   FCM_YP(2) = FCM_YP(1)
-!~   FCM_ZP(2) = FCM_ZP(1)
-!~  end if
- 
-!~ end if
-!~ if (MYID==0) then
-!~    print*,NCYCLE
-!~    print*,FCM_XP/FCM_SPHERE_RADP(2)
-!~    print*,FCM_YP/FCM_SPHERE_RADP(2)
-!~    print*,FCM_ZP/FCM_SPHERE_RADP(2)
-!~    print*,'FCM_PSWIM(1,:) = ',FCM_PSWIM(1,:)
-!~    print*,'FCM_PSWIM(2,:) = ',FCM_PSWIM(2,:)   
-!~    print*,'distance /(FCM_SPHERE_RADP(1)+FCM_SPHERE_RADP(2)) = '
-!~    print*,dsqrt( (FCM_XP(2)-FCM_XP(1))**2 +(FCM_YP(2)-FCM_YP(1))**2 + (FCM_ZP(2)-FCM_ZP(1))**2 ) &
-!~                /(FCM_SPHERE_RADP(1)+FCM_SPHERE_RADP(2))
-!~  end if  
-!~     read(*,*)
-!~  end if
-!~    print*,'FCM_YP/FCM_SPHERE_RADP(1) = ', FCM_YP/FCM_SPHERE_RADP(1)
-!~    print*,'FCM_ZP/FCM_SPHERE_RADP(1) = ', FCM_ZP/FCM_SPHERE_RADP(1)
-!~    read(*,*)
-!~    print*,'FCM_PSWIM = ', FCM_PSWIM
-!~ !  print*,'FCM_VSW = ', FCM_VSW
-!~   read(*,*)
+real(kind=8) :: seconds  
 
 
  !- Zeros necessary variables
@@ -177,9 +143,12 @@ integer :: I
   if (FCM_BC==2) then
    call FCM_MIRROR_FORCES_X
   end if
-
+  seconds = MPI_Wtime ( );
   call FCM_FLUID_PREDICTION  
-
+  seconds = MPI_Wtime ( )-seconds;
+  if (MYID.eq.0) then
+   print*, 'time_fluid_prediction = ', seconds
+  end if
   call FCM_RATE_OF_STRAIN_FILTER  
   
       
@@ -195,7 +164,12 @@ integer :: I
   ! Don't take shear into account in the PCG
   FCM_CONSIDER_ROS_SHEAR = 0
 
+  seconds = MPI_Wtime ( );
   call FCM_CONJUGATE_GRADIENT_STRESSLET
+  seconds = MPI_Wtime ( )-seconds;
+  if (MYID.eq.0) then
+   print*, 'time_stresslet = ', seconds
+  end if
 
   FCM_FORCING_X(:,:,:) = 0.0
   FCM_FORCING_Y(:,:,:) = 0.0
@@ -227,23 +201,6 @@ integer :: I
  end if
 
  call FCM_FLUID_PREDICTION  
-
-
-!~  !!! TO COMMENT !!!!!!!!!!!!!!!!!!!!!!
-!~ ! if (FCM_ACTIVATE_STRESSLET==1) then
-!~ !  FCM_CONSIDER_ROS_SHEAR = 1
-!~ !  call FCM_RATE_OF_STRAIN_FILTER  
-!~ !  if (FCM_SWIMMING>=1) then
-!~ !    call FCM_REMOVE_SELF_ROS
-!~ !  end if
-
-!~ !  if (MYID==0) then
-!~ !       print*,'maxval(FCM_EIJ)', maxval(abs(FCM_EIJ))
-!~  !     read(*,*)
-!~ !  end if
-!~ ! end if !if (FCM_ACTIVATE_STRESSLET==1) then
-!~  !!! TO COMMENT !!!!!!!!!!!!!!!!!!!!!!
-
    
  call FCM_VELOCITY_FILTER
 
@@ -273,99 +230,5 @@ integer :: I
  end if
 
  call FCM_CHECK_PARTICLE_POSITION
-  
-!!!!!!!!!! TO COMMENT !!!!!!!!!!!!!!!!!!!!
- !! JUST A TEST TO CHECK THAT MIRROR IMAGE HAS SAME VELOCITY
-!~  FCM_XP(2) = LXMAX - FCM_XP(1)
-!~  FCM_YP(2) = FCM_YP(1)
-!~  FCM_ZP(2) = FCM_ZP(1)
-
-!~  FCM_XP(1) = FCM_XP(1) - (LXMAX/2.0 - 2.0*FCM_SPHERE_RADP(1))/real(NCYCLEMAX - 2)
-!~  if( NPART_FULL==2) then
-!~   FCM_XP(2) = LXMAX - FCM_XP(1)
-!~  end if
-!!!!!!!!!! TO COMMENT !!!!!!!!!!!!!!!!!!!!
-
-! print*, MYID
-! print*,'FCM_PSWIM = ', FCM_PSWIM 
-! print*, 'FCM_XP/FCM_SPHERE_RADP(1)  = ', FCM_XP/FCM_SPHERE_RADP(1)
-! print*, 'FCM_YP/FCM_SPHERE_RADP(1) = ', FCM_YP/FCM_SPHERE_RADP(1)
-! print*, 'FCM_ZP/FCM_SPHERE_RADP(1) = ', FCM_ZP/FCM_SPHERE_RADP(1)   
-! print*, 'FCM_UP(:,1) = ', FCM_UP(:,1)  
-! print*, 'FCM_VP(:,1) = ', FCM_VP(:,1)  
-! print*, 'FCM_WP(:,1) = ', FCM_WP(:,1)  
-! read(*,*)
-!~    print*,'FCM_FORCE = ', FCM_FORCE
-!~    print*,'FCM_VSW = ', FCM_VSW
-!~    print*,'FCM_VSW/rad = ', FCM_VSW/FCM_SPHERE_RADP
-!~   print*,'FCM_SIJ= ', FCM_SIJ
-!~    print*,'FCM_VEL= '
-  
-!~   print*,FCM_VP(:,1)
-!~   print*,FCM_WP(:,1)
-!~    print*,'FCM_ROT= '
-!~   print*,FCM_OMPX
-!~   print*,FCM_OMPY
-!~   print*,FCM_OMPZ
-!~  end if
-
-!~   read(*,*)
-!~   read(*,*) !/(6.0*PPI*FCM_SPHERE_RADP(1))
-!~   print*,FCM_VP(2,1) !/(6.0*PPI*FCM_SPHERE_RADP(1))
-!~   print*,FCM_VP(1,1)
-!~   print*,FCM_WP(1,1)
-
-!~   read(*,*)
-
-!~   print*,FCM_WP(:,1)
-!~   read(*,*)
-!   print*,'maxval(FCM_VP(:,1))= ',maxval(FCM_VP(:,1))
-!   print*,'maxval(FCM_WP(:,1)) = ',maxval(FCM_WP(:,1))
-!~     read(*,*)
-! end if 
-!~  if (MYID==0) then
-!~     print*, 'FCM_XP = ',FCM_XP
-!~     read(*,*)
-!~  end if
-  
-!~  if (MYID==0) then
-!~   print*,'NCYCLE = ', NCYCLE
-!~   print*,'FCM_TORQUE = ', FCM_TORQUE
-!~   print*,'FCM_OMPY = ', FCM_OMPY
-!~   print*,'FCM_PSWIM = ', FCM_PSWIM 
-!~   read(*,*)
-!~  end if
-!~   if ( (maxval(abs(FCM_TORQUE))>0).or.(maxval(abs(FCM_FORCE))>0) ) then
-!~    print*,'FCM_TORQUE = ', FCM_TORQUE
-!~   end if
-!~   
-!~   if ((maxval(FCM_UP(:,1))/FCM_VSW>10.0).or.(maxval(FCM_VP(:,1))/FCM_VSW>10.0).or.(maxval(FCM_WP(:,1))/FCM_VSW>10.0)) then
-
-!~   end if
-       
-!~  end if
-!~  
-!~  if (MYID==0) then
-  !if (mod(NCYCLE,FOUT3)==0) then
-!~     print*,'NCYCLE ', NCYCLE
-!~    print*,'FCM_XP = ', FCM_XP
-!~    print*,'FCM_YP = ', FCM_YP
-!~    print*,'FCM_ZP = ', FCM_ZP
- !  print*, FCM_WP(:,1)
-!~    print*,'FCM_VP(:,1) = ', FCM_VP(:,1)-FCM_VSW*FCM_PSWIM(:,2)
-!~    print*,'FCM_WP(:,1) = ', FCM_WP(:,1)-FCM_VSW*FCM_PSWIM(:,3)
-!~    read(*,*)
-!~    print*,'FCM_PSWIM = ', FCM_PSWIM   
-!~    read(*,*)
-!~    print*,'FCM_OMPX = ', FCM_OMPX
-!~    print*,'FCM_OMPY = ', FCM_OMPY
-!~    print*,'FCM_OMPZ = ', FCM_OMPZ
-!~    read(*,*)
-!~    print*,'FCM_SIJ = ', FCM_SIJ
-!~    print*,'FCM_EIJ = ', FCM_EIJ
-!~    read(*,*)
-  !end if
-!~  end if
-!~ 
 
 end subroutine FCM_ALGORITHM

@@ -21,10 +21,6 @@ subroutine FCM_RATE_OF_STRAIN_FILTER
 !!====================================================================
 !! Rotationfiltering: 
 !!------------------------------
-!!
-!! TO DO : 
-!!        1) If ellipsoid
-!!------------------------------
 !! WARNING: We use temporary variables before performing the sum of each
 !! proc contribution
 !!------------------------------
@@ -43,19 +39,6 @@ implicit none
 !------------------------------------------------------------------
 ! ARRAYS STATEMENT
 !------------------------------------------------------------------
-!- ROS
-
-!~ !- Physical Space
-!~ real(kind=8), &
-!~    dimension(ISTART(1):IEND(1),ISTART(2):IEND(2),ISTART(3):IEND(3)) :: FCM_FLUID_E11
-!~ real(kind=8), &
-!~    dimension(ISTART(1):IEND(1),ISTART(2):IEND(2),ISTART(3):IEND(3)) :: FCM_FLUID_E12
-!~ real(kind=8), &
-!~    dimension(ISTART(1):IEND(1),ISTART(2):IEND(2),ISTART(3):IEND(3)) :: FCM_FLUID_E13
-!~ real(kind=8), &
-!~    dimension(ISTART(1):IEND(1),ISTART(2):IEND(2),ISTART(3):IEND(3)) :: FCM_FLUID_E22
-!~ real(kind=8), &
-!~    dimension(ISTART(1):IEND(1),ISTART(2):IEND(2),ISTART(3):IEND(3)) :: FCM_FLUID_E23
 
 
 ! Indices for loops
@@ -77,14 +60,6 @@ real(kind=8) :: FCM_E13_FLUID_SHEAR
 
 ! Zeros temporary variable
 FCM_EIJ_TEMP(:,:) = 0.0
-
-!~ ! Compute vorticity in physical space from UFOU, VFOU, WFOU
-!~ call FCM_FLUID_RATE_OF_STRAIN(FCM_FLUID_E11, &
-!~ 							  FCM_FLUID_E12, &
-!~ 							  FCM_FLUID_E13, &
-!~ 							  FCM_FLUID_E22, &
-!~ 							  FCM_FLUID_E23)
-         
 
 !- dx*dy*dz for numerical Riemann sum
 FCM_DXDYDZ = DX*DY*DZ
@@ -128,11 +103,6 @@ do IP = 1, FCM_ACTIVATE_STRESSLET
       IX = FCM_SPHERE_IXP(IP,I)
       FCM_COEFF3 = FCM_COEFF2 * FCM_SPHERE_DIP_GAUSS1(IP,I)
       XX = FCM_SPHERE_GRAD_DIP_GAUSS1(IP,I)
-      
-!~       print*,'K,J,I = ',K,J,I
-!~       print*,'FCM_COEFF3 = ',FCM_COEFF3
-!~       print*,'XX, YY, ZZ = ',XX, YY, ZZ
-!~       read(*,*)
      
       FCM_EIJ_TEMP(IP,1) = FCM_EIJ_TEMP(IP,1) &
                          - FCM_COEFF3 * UFLU(IX,IY,IZ) * XX
@@ -214,11 +184,6 @@ do IP = FCM_NSPHERE + 1, NPART_FULL
                                                  
       FCM_COEFF3 = FCM_COEFF3 * FCM_DXDYDZ           
       
-!~       print*,'K,J,I = ',K,J,I
-!~       print*,'FCM_COEFF3 = ',FCM_COEFF3
-!~       print*,'XX, YY, ZZ = ',XX, YY, ZZ
-!~       read(*,*)                                       
-     
       FCM_EIJ_TEMP(IP,1) = FCM_EIJ_TEMP(IP,1) &
                          - FCM_COEFF3 * UFLU(IX,IY,IZ) * XX
       FCM_EIJ_TEMP(IP,2) = FCM_EIJ_TEMP(IP,2) &

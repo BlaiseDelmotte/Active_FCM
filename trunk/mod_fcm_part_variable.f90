@@ -121,23 +121,10 @@ real(kind=8), dimension(:,:), allocatable :: FCM_ELLIPSOID_SIGMA_DIP       !< Di
 real(kind=8), dimension(:), allocatable :: FCM_SPHERE_SIGSQ      !< Half of denominator in the exp of the Gaussian
 real(kind=8), dimension(:), allocatable :: FCM_SPHERE_ANORM_POTDIP   !< Factor for potential dipole enveloppe
 
-
-
-!~! integer, dimension(:,:),allocatable :: FCM_SPHERE_IXP_SQ, &
-!~!                                        FCM_SPHERE_IYP_SQ, &
-!~!                                        FCM_SPHERE_IZP_SQ !< Gaussian nodes on the mesh
-
-!~! real(kind=8), dimension(:,:),allocatable :: FCM_SPHERE_GAUSS1_SQ, &
-!~!                                             FCM_SPHERE_GAUSS2_SQ, &
-!~!                                             FCM_SPHERE_GAUSS3_SQ        !< Monopole Gaussian distribution
                                             
 real(kind=8), dimension(:,:),allocatable :: FCM_SPHERE_GRAD_GAUSS1_SQ, &
                                             FCM_SPHERE_GRAD_GAUSS2_SQ, &
                                             FCM_SPHERE_GRAD_GAUSS3_SQ    !< Dipole Gaussian distribution
-                                            
-!~! real(kind=8), dimension(:,:),allocatable :: FCM_SPHERE_POTDIP_GAUSS1_SQ, &
-!~!                                             FCM_SPHERE_POTDIP_GAUSS2_SQ, &
-!~!                                             FCM_SPHERE_POTDIP_GAUSS3_SQ !< Potential dipole Gaussian distribution
                                             
 real(kind=8), dimension(:,:),allocatable :: FCM_COEFF_SPHERE_POTDIP_GAUSS1_SQ, &
                                             FCM_COEFF_SPHERE_POTDIP_GAUSS2_SQ, &
@@ -152,21 +139,6 @@ real(kind=8), dimension(:,:),allocatable :: FCM_COEFF_SPHERE_POTDIP_GAUSS1_SQ, &
 
 real(kind=8), dimension(:), allocatable :: FCM_ELLIPSOID_ANORM_POTDIP       !< Pot Dipole Gaussian prefactor
 real(kind=8), dimension(:,:), allocatable :: FCM_ELLIPSOID_SIGSQ          !< Half of the Denominator in the exp of the Gaussian
-
-!~ !integer, dimension(:,:),allocatable :: FCM_ELLIPSOID_IXP_SQ, &
-!~!                                        FCM_ELLIPSOID_IYP_SQ, &
-!~ !                                       FCM_ELLIPSOID_IZP_SQ !< Gaussian nodes on the mesh
-
-!~! real(kind=8), dimension(:,:,:,:),allocatable :: FCM_ELLIPSOID_GAUSS_SQ        !< Monopole Gaussian distribution
-
-!~! real(kind=8), dimension(:,:,:,:),allocatable :: FCM_ELLIPSOID_POTDIP_GAUSS_SQ    !< < Potential dipole Gaussian distribution
-
-!~ real(kind=8), dimension(:,:,:,:),allocatable :: FCM_ELLIPSOID_GRAD_GAUSS1_SQ, &
-!~                                                 FCM_ELLIPSOID_GRAD_GAUSS2_SQ, &
-!~                                                 FCM_ELLIPSOID_GRAD_GAUSS3_SQ    !< Dipole Gaussian distribution
-!~                                             
-!~ real(kind=8), dimension(:,:,:,:),allocatable :: FCM_COEFF_ELLIPSOID_POTDIP_GAUSS_SQ
-
 
 !!====================================================================
 !! 3. PARTICLE LOCATION 

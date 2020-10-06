@@ -22,10 +22,6 @@ subroutine FCM_ROTATION_FILTER
 !!====================================================================
 !! Rotationfiltering: 
 !!------------------------------
-!!
-!! TO DO : 
-!!        1) If ellipsoid
-!!------------------------------
 !! WARNING: We use temporary variables before performing the sum of each
 !! proc contribution
 !!------------------------------
@@ -44,17 +40,6 @@ implicit none
 !------------------------------------------------------------------
 ! ARRAYS STATEMENT
 !------------------------------------------------------------------
-!- Vorticity
-
-!- Physical Space
-
-!~ real(kind=8),   &
-!~    dimension(ISTART(1):IEND(1),ISTART(2):IEND(2),ISTART(3):IEND(3)) :: ZETAX
-!~ real(kind=8),    &
-!~    dimension(ISTART(1):IEND(1),ISTART(2):IEND(2),ISTART(3):IEND(3)) :: ZETAY
-!~ real(kind=8),    &
-!~    dimension(ISTART(1):IEND(1),ISTART(2):IEND(2),ISTART(3):IEND(3)) :: ZETAZ
-   
 
 ! Indices for loops
 integer :: IP, K, J, I, IND
@@ -77,9 +62,6 @@ FCM_OMPX_TEMP(:) = 0d0
 FCM_OMPY_TEMP(:) = 0d0
 FCM_OMPZ_TEMP(:) = 0d0
 
-
-!~ ! Compute vorticity in physical space from UFOU, VFOU, WFOU
-!~ call VORTICITY(ZETAX,ZETAY,ZETAZ)
 
 !- dx*dy*dz for numerical Riemann sum
 FCM_DXDYDZ = DX*DY*DZ
@@ -125,16 +107,6 @@ do IP = 1, FCM_NSPHERE
       FCM_OMPZ_TEMP(IP) = FCM_OMPZ_TEMP(IP) &
                         - FCM_COEFF3 * (VFLU(IX,IY,IZ)*XX - UFLU(IX,IY,IZ)*YY)			
                        
-      
-     
-!~       print*,'K,J,I = ',K,J,I
-!~       print*,'FCM_COEFF3 = ',FCM_COEFF3
-!~       print*,'XX, YY, ZZ = ',XX, YY, ZZ
-!~       print*,'WFLU(IX,IY,IZ) = ',WFLU(IX,IY,IZ)
-!~       print*,'VFLU(IX,IY,IZ) = ',VFLU(IX,IY,IZ)
-!~       print*,'UFLU(IX,IY,IZ) = ',UFLU(IX,IY,IZ)
-!~       print*,'FCM_OMPZ_TEMP(IP) = ',FCM_OMPZ_TEMP(IP)
-!~       read(*,*)
      end do		
      		
     endif			
@@ -211,14 +183,6 @@ do IP = FCM_NSPHERE + 1, NPART_FULL
       FCM_OMPZ_TEMP(IP) = FCM_OMPZ_TEMP(IP) &
                         - FCM_COEFF3 * (VFLU(IX,IY,IZ)*XX - UFLU(IX,IY,IZ)*YY)		
                         
-!~       print*,'K,J,I = ',K,J,I
-!~       print*,'FCM_COEFF3 = ',FCM_COEFF3
-!~       print*,'XX, YY, ZZ = ',XX, YY, ZZ
-!~       print*,'WFLU(IX,IY,IZ) = ',WFLU(IX,IY,IZ)
-!~       print*,'VFLU(IX,IY,IZ) = ',VFLU(IX,IY,IZ)
-!~       print*,'UFLU(IX,IY,IZ) = ',UFLU(IX,IY,IZ)
-!~       print*,'FCM_OMPZ_TEMP(IP) = ',FCM_OMPZ_TEMP(IP)
-!~       read(*,*)
      end do		
      		
     endif			

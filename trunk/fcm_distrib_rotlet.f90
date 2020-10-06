@@ -21,16 +21,6 @@ subroutine FCM_DISTRIB_ROTLET
 !! Here the rotlet forcing is distributed on the monopole 
 !! dipole Gaussian enveloppe.
 !!====================================================================
-!! Forcing: 
-!!------------------------------
-!!
-!! TO DO : 
-!!        1) If ellipsoid
-!!------------------------------
-!! WARNING: to save memory, we store  the resulting forcing 
-!! field in UFLU, VFLU, WFLU
-!!------------------------------
-!!====================================================================
 
 use WORK_ARRAYS
 use FLUID_VARIABLE
@@ -77,12 +67,6 @@ do IP = 1, FCM_NSPHERE
  if (maxval(abs(FCM_TORQUE(IP,:)))>0) then
  
   ! Compute the antisymmetric part of dipole (Rotlet) with the torque
-!~   FCM_AIJ(IP,1) = 0d0
-!~   FCM_AIJ(IP,2) = FCM_TORQUE(IP,3)/2.0d0
-!~   FCM_AIJ(IP,3) = -FCM_TORQUE(IP,2)/2.0d0
-!~   FCM_AIJ(IP,4) = 0d0
-!~   FCM_AIJ(IP,5) = FCM_TORQUE(IP,1)/2.0d0
-  
   FCM_AIJ(IP,1) = 0d0
   FCM_AIJ(IP,2) = -FCM_TORQUE(IP,3)/2.0d0
   FCM_AIJ(IP,3) = +FCM_TORQUE(IP,2)/2.0d0
@@ -162,12 +146,6 @@ do IP = FCM_NSPHERE + 1, NPART_FULL
   
   
   ! Compute the antisymmetric part of dipole (Rotlet) with the torque
-!~   FCM_AIJ(IP,1) = 0d0
-!~   FCM_AIJ(IP,2) = FCM_TORQUE(IP,3)/2.0d0
-!~   FCM_AIJ(IP,3) = -FCM_TORQUE(IP,2)/2.0d0
-!~   FCM_AIJ(IP,4) = 0d0
-!~   FCM_AIJ(IP,5) = FCM_TORQUE(IP,1)/2.0d0
-!~   
   FCM_AIJ(IP,1) = 0d0
   FCM_AIJ(IP,2) = -FCM_TORQUE(IP,3)/2.0d0
   FCM_AIJ(IP,3) = +FCM_TORQUE(IP,2)/2.0d0
@@ -238,7 +216,6 @@ do IP = FCM_NSPHERE + 1, NPART_FULL
  end if
 end do
 
-!~ print*, 'maxval(TMPPHY), maxval(TMPPHY2), maxval(TMPPHY3) = ', maxval(TMPPHY), maxval(TMPPHY2), maxval(TMPPHY3)
 
 ! Summation to compute total forcing
 FCM_FORCING_X = FCM_FORCING_X + TMPPHY

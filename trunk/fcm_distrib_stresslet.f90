@@ -23,15 +23,6 @@ subroutine FCM_DISTRIB_STRESSLET(DIM1,FCM_STRESS)
 !!====================================================================
 !! Here the stresslet forcing is distributed on the  
 !! dipole Gaussian enveloppe.
-!!====================================================================
-!! Forcing: 
-!!------------------------------
-!!
-!! TO DO : 
-!!        1) If ellipsoid
-!!------------------------------
-!! WARNING: to save memory, we store  the resulting forcing 
-!! field in UFLU, VFLU, WFLU
 !!------------------------------
 !!====================================================================
 
@@ -124,13 +115,6 @@ do IP = 1, DIM1
       TMPPHY3(IX,IY,IZ) = TMPPHY3(IX,IY,IZ) & 
                         + FCM_COEFF3 * FCM_STEMP3Z								
                         
-!~       print*,'K,J,I = ',K,J,I
-!~       print*,'FCM_COEFF3 = ',FCM_COEFF3
-!~       print*,'FCM_STEMP3X , FCM_STEMP3Y, FCM_STEMP3Z = ',FCM_STEMP3X , FCM_STEMP3Y, FCM_STEMP3Z
-!~       print*,'TMPPHY(IX,IY,IZ) = ',TMPPHY(IX,IY,IZ)
-!~       print*,'TMPPHY2(IX,IY,IZ) = ',TMPPHY2(IX,IY,IZ)
-!~       print*,'TMPPHY3(IX,IY,IZ) = ',TMPPHY3(IX,IY,IZ)
-!~       read(*,*)
      end do		
      		
     endif			
@@ -217,13 +201,6 @@ do IP = FCM_NSPHERE + 1, NPART_FULL
       TMPPHY3(IX,IY,IZ) = TMPPHY3(IX,IY,IZ) & 
                         + FCM_COEFF3 * FCM_STEMP3Z 			
                         
-!~       print*,'K,J,I = ',K,J,I
-!~       print*,'FCM_COEFF3 = ',FCM_COEFF3
-!~       print*,'FCM_STEMP3X , FCM_STEMP3Y, FCM_STEMP3Z = ',FCM_STEMP3X , FCM_STEMP3Y, FCM_STEMP3Z
-!~       print*,'TMPPHY(IX,IY,IZ) = ',TMPPHY(IX,IY,IZ)
-!~       print*,'TMPPHY2(IX,IY,IZ) = ',TMPPHY2(IX,IY,IZ)
-!~       print*,'TMPPHY3(IX,IY,IZ) = ',TMPPHY3(IX,IY,IZ)
-!~       read(*,*)
      end do		
      		
     endif			

@@ -17,7 +17,7 @@
 !=====================================================================
 ! 3. PARTICLE PROPERTIES
 !=====================================================================
-174, 174        ! Number of spheres              ! FCM_NSPHERE, FCM_NSPHERE_1 (for bidisperse)
+100, 100        ! Number of spheres              ! FCM_NSPHERE, FCM_NSPHERE_1 (for bidisperse)
 !---------------------------------------------------------------------
 1.0, 0.0          ! Default sphere size         ! FCM_SPHERE_SIZE
 !---------------------------------------------------------------------
@@ -33,7 +33,7 @@
 !====================================================================
 ! 5. STRESSLET PARAMETERS
 !=====================================================================
-174  ! Stresslet, >0:number of part, 0: no		 ! FCM_ACTIVATE_STRESSLET
+100  ! Stresslet, >0:number of part, 0: no		 ! FCM_ACTIVATE_STRESSLET
 !---------------------------------------------------------------------
 1e-2  	     ! Tolerance on L2 norm of ROS	 ! FCM_TOL_L2RES_ROS
 !====================================================================
@@ -59,7 +59,7 @@
 !=====================================================================
 1    ! 1: Stokes flow, 2: Stokes Flow + Brownian motion ! FCM_FLOW_TYPE
 !---------------------------------------------------------------------
-1   ! 1: Triperiodic domain, 2: Free-stress surfaces along x ! FCM_BC
+2   ! 1: Triperiodic domain, 2: Free-stress surfaces along x ! FCM_BC
 !---------------------------------------------------------------------
 0.0   ! Thermal energy ! KBT
 !====================================================================
@@ -98,13 +98,3 @@
       =5 : Time-dependent swimming, random phase shift distribution
 !!!!!!!!!!  END OF FCM_PARAM.IN  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
-
- 1. INITIATION PARAMETERS
-!---------------------------------------------------------------------
- FCM_INIT_PART_POS  
-      =0 : Particles are equi-spaced in the domain
-	
- FCM_INIT_PART_ORIENT
-      =0 : All particles orientation are set in the x-direction
-	

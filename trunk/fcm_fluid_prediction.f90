@@ -70,30 +70,15 @@ end if
 
 
 
-!~ call cpu_time(MEASURE_START)
-!~ call P3DFFT_FTRAN_R2C(FCM_FORCING_X(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),RHS_UFOU(:,:,:,1),FFTFLAG)    !- x-component of fluid velocity
-!~ call cpu_time(MEASURE_END)
-!~ print*, '("Time = ",f6.9," seconds.")',MEASURE_END - MEASURE_START
-!~ 
-!~ read(*,*)
-
 !- Projection of forcing terms in Fourier space
-
-!~ TMPPHY(:,:,:) = FCM_FORCING_X(:,ISTART(2):IEND(2),ISTART(3):IEND(3))
-!~ call P3DFFT_FTRAN_R2C(TMPPHY,RHS_UFOU(:,:,:,1),FFTFLAG)    !- x-component of fluid velocity
 call P3DFFT_FTRAN_R2C(FCM_FORCING_X(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),RHS_UFOU(:,:,:,1),FFTFLAG)    !- x-component of fluid velocity
 
-!~ TMPPHY(:,:,:) = FCM_FORCING_Y(:,ISTART(2):IEND(2),ISTART(3):IEND(3))
-!~ call P3DFFT_FTRAN_R2C(TMPPHY,RHS_VFOU(:,:,:,1),FFTFLAG)    !- y-component of fluid velocity
 call P3DFFT_FTRAN_R2C(FCM_FORCING_Y(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),RHS_VFOU(:,:,:,1),FFTFLAG)    !- y-component of fluid velocity
 
-!~ TMPPHY(:,:,:) = FCM_FORCING_Z(:,ISTART(2):IEND(2),ISTART(3):IEND(3))
-!~ call P3DFFT_FTRAN_R2C(TMPPHY,RHS_WFOU(:,:,:,1),FFTFLAG)    !- z-component of fluid velocity
 call P3DFFT_FTRAN_R2C(FCM_FORCING_Z(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),RHS_WFOU(:,:,:,1),FFTFLAG)    !- z-component of fluid velocity
 
 
 
-!~ call cpu_time(MEASURE_START)
 
 
 !- FFT Normalization
@@ -149,9 +134,6 @@ if(MYID == 0) then
  WFOU(1,1,1) =cmplx(ZERO,ZERO)
 end if
 
-!~ call cpu_time(MEASURE_END)
-!~  print*, '("Time = ",f6.9," seconds.")',MEASURE_END - MEASURE_START 
-!~ read(*,*)
 
 !- CPU check
 if(MYID == 0) then
@@ -159,16 +141,10 @@ if(MYID == 0) then
 end if
 
 !- Back in physical space
-!~ TMPFOU = UFOU
-!~ call P3DFFT_BTRAN_C2R(TMPFOU,UFLU(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),FFTFLAG)   
 call P3DFFT_BTRAN_C2R(UFOU,UFLU(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),FFTFLAG)   
 
-!~ TMPFOU = VFOU
-!~ call P3DFFT_BTRAN_C2R(TMPFOU,VFLU(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),FFTFLAG)
 call P3DFFT_BTRAN_C2R(VFOU,VFLU(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),FFTFLAG)
 
-!~ TMPFOU = WFOU
-!~ call P3DFFT_BTRAN_C2R(TMPFOU,WFLU(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),FFTFLAG)       
 call P3DFFT_BTRAN_C2R(WFOU,WFLU(:,ISTART(2):IEND(2),ISTART(3):IEND(3)),FFTFLAG)       
 
 !!- CPU check
