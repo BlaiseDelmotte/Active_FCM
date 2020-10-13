@@ -241,21 +241,11 @@ if (SOLVE_FLUID ==2)  then
    
    allocate(FCM_SPHERE_ANORM_POTDIP(FCM_NSWIM(2)))
     
-!~  !  allocate(FCM_SPHERE_IXP_SQ(FCM_NSPHERE,FCM_NGD), &
-!~  !           FCM_SPHERE_IYP_SQ(FCM_NSPHERE,FCM_NGD), &
-!~  !           FCM_SPHERE_IZP_SQ(FCM_NSPHERE,FCM_NGD))              
-            
-!~  !  allocate(FCM_SPHERE_GAUSS1_SQ(FCM_NSPHERE,FCM_NGD), &
-!~  !           FCM_SPHERE_GAUSS2_SQ(FCM_NSPHERE,FCM_NGD), &
-!~  !           FCM_SPHERE_GAUSS3_SQ(FCM_NSPHERE,FCM_NGD)) 
             
    allocate(FCM_SPHERE_GRAD_GAUSS1_SQ(FCM_NSWIM(2),FCM_NGD_MAX), &
             FCM_SPHERE_GRAD_GAUSS2_SQ(FCM_NSWIM(2),FCM_NGD_MAX), &
             FCM_SPHERE_GRAD_GAUSS3_SQ(FCM_NSWIM(2),FCM_NGD_MAX))  
             
-!~   ! allocate(FCM_SPHERE_POTDIP_GAUSS1_SQ(FCM_NSPHERE,FCM_NGD), &
-!~   !          FCM_SPHERE_POTDIP_GAUSS2_SQ(FCM_NSPHERE,FCM_NGD), &
-!~   !          FCM_SPHERE_POTDIP_GAUSS3_SQ(FCM_NSPHERE,FCM_NGD))  
             
    allocate(FCM_COEFF_SPHERE_POTDIP_GAUSS1_SQ(FCM_NSWIM(2),FCM_NGD_MAX), &
             FCM_COEFF_SPHERE_POTDIP_GAUSS2_SQ(FCM_NSWIM(2),FCM_NGD_MAX), &
@@ -281,58 +271,11 @@ if (SOLVE_FLUID ==2)  then
            FCM_ELLIPSOID_SIGMA(FCM_NELLIPSOID,3), &
            FCM_ELLIPSOID_SIGMA_DIP(FCM_NELLIPSOID,3)) 
            
-!~   if (FCM_NELLIPSOID<1) then
-!~    allocate(FCM_ELLIPSOID_GAUSS(FCM_NELLIPSOID,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD))   
-!~    
-!~    allocate(FCM_ELLIPSOID_DIP_GAUSS(FCM_NELLIPSOID,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD)) 
-!~    
-!~    allocate(FCM_ELLIPSOID_GRAD_DIP_GAUSS1(FCM_NELLIPSOID,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD))  
-!~    allocate(FCM_ELLIPSOID_GRAD_DIP_GAUSS2(FCM_NELLIPSOID,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD))  
-!~    allocate(FCM_ELLIPSOID_GRAD_DIP_GAUSS3(FCM_NELLIPSOID,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD,FCM_ELLIPSOID_NGD)) 
-!~   end if
-  
   
   if (FCM_NSWIM(2)>0) then 
   
    allocate(FCM_ELLIPSOID_SIGSQ(FCM_NSWIM(2),3))
    
-
-    
-!~   ! allocate(FCM_ELLIPSOID_IXP_SQ(FCM_NELLIPSOID,FCM_ELLIPSOID_NGD), &
-!~   !          FCM_ELLIPSOID_IYP_SQ(FCM_NELLIPSOID,FCM_ELLIPSOID_NGD), &
-!~   !          FCM_ELLIPSOID_IZP_SQ(FCM_NELLIPSOID,FCM_ELLIPSOID_NGD))              
-            
-!~   ! allocate(FCM_ELLIPSOID_GAUSS_SQ(FCM_NELLIPSOID, &
-!~   !                                 FCM_ELLIPSOID_NGD, &
-!~   !                                 FCM_ELLIPSOID_NGD, &
-!~   !                                 FCM_ELLIPSOID_NGD) )
-
-!~    if (FCM_NELLIPSOID<1) then
-!~     allocate(FCM_ELLIPSOID_GRAD_GAUSS1_SQ(FCM_NELLIPSOID, &
-!~                                           FCM_ELLIPSOID_NGD, &
-!~                                           FCM_ELLIPSOID_NGD, &
-!~                                           FCM_ELLIPSOID_NGD) )
-!~                                           
-!~     allocate(FCM_ELLIPSOID_GRAD_GAUSS2_SQ(FCM_NELLIPSOID, &
-!~                                           FCM_ELLIPSOID_NGD, &
-!~                                           FCM_ELLIPSOID_NGD, &
-!~                                           FCM_ELLIPSOID_NGD) )
-!~                                           
-!~     allocate(FCM_ELLIPSOID_GRAD_GAUSS3_SQ(FCM_NELLIPSOID, &
-!~                                           FCM_ELLIPSOID_NGD, &
-!~                                           FCM_ELLIPSOID_NGD, &
-!~                                           FCM_ELLIPSOID_NGD) )
-!~              
-    !allocate(FCM_ELLIPSOID_POTDIP_GAUSS_SQ(FCM_NELLIPSOID, &
-    !                                       FCM_ELLIPSOID_NGD, &
-    !                                       FCM_ELLIPSOID_NGD, &
-    !                                       FCM_ELLIPSOID_NGD) )  
-!~              
-!~     allocate(FCM_COEFF_ELLIPSOID_POTDIP_GAUSS_SQ(FCM_NELLIPSOID, &
-!~                                                   FCM_ELLIPSOID_NGD, &
-!~                                                   FCM_ELLIPSOID_NGD, &
-!~                                                   FCM_ELLIPSOID_NGD) )
-!~    end if
  
                                                  
                                                  
@@ -361,8 +304,6 @@ if (SOLVE_FLUID ==2)  then
   
   ! Test with AB4
   allocate(FCM_OM_VEC_PSWIM(NPART_FULL,3,4))
-!  allocate(FCM_OM_VEC_P2(NPART_FULL,3,4))
-!  allocate(FCM_OM_VEC_P3(NPART_FULL,3,4))
  end if
 
  

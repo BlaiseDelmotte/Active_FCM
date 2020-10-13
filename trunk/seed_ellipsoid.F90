@@ -153,13 +153,6 @@ elseif (FCM_INIT_PART_ORIENT==1) then
  QUAT2 = dsqrt(1.0-RANDNUM_AXIS(1))*cos(2.0*PPI*RANDNUM_AXIS(2))
  QUAT3 = dsqrt(RANDNUM_AXIS(1))*sin(2.0*PPI*RANDNUM_AXIS(3))
  QUAT4 = dsqrt(RANDNUM_AXIS(1))*cos(2.0*PPI*RANDNUM_AXIS(3))
-!~   
-!~   
-!~  !! Following http://neon.mems.cmu.edu/rollett/27750/lecture2.pdf 
-!~  QUAT1 = dsqrt(RANDNUM_AXIS(3))*cos(2.0*PPI*RANDNUM_AXIS(1))
-!~  QUAT2 = dsqrt(1.0-RANDNUM_AXIS(3))*sin(2.0*PPI*RANDNUM_AXIS(2))
-!~  QUAT2 = dsqrt(1.0-RANDNUM_AXIS(3))*cos(2.0*PPI*RANDNUM_AXIS(2))
-!~  QUAT3 = dsqrt(RANDNUM_AXIS(3))*sin(2.0*PPI*RANDNUM_AXIS(1))
  
  
  

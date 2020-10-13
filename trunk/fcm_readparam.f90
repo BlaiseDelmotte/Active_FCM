@@ -176,9 +176,6 @@ else
   FCM_NGD(FCM_NSPHERE_1+1:NPART_FULL) = nint(FCM_SPHERE_SIZE(2) * real(FCM_NGD_REF))
   FCM_NGD_MAX = maxval(FCM_NGD)
   
- ! print*,'FCM_NGD = ',  FCM_NGD
- ! print*,'FCM_NGD_MAX = ', FCM_NGD_MAX 
-
  end if
  
  FCM_NSWIM = 0
@@ -213,8 +210,7 @@ else
  end if 
  
  
-!~  read(*,*)
- 
+ ! DEACTIVATE QUATERNIONS SO FAR 
  FCM_USE_QUAT = 0
  
  

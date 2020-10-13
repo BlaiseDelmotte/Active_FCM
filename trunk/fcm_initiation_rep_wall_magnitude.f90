@@ -24,11 +24,10 @@ use FCM_FORCING_VARIABLE
 implicit none
 
 
-! Scale rep force with Brownian motion (KbT=1)
 if (FCM_NSPHERE>0) then
 
- FCM_WALL_LEVEL =  6.0/min(DX,DY,DZ)**2
- FCM_WALL_RANGE = 2.2*maxval(FCM_SPHERE_RADP)
+ FCM_WALL_LEVEL =  20.0*6.0*PPI*20.0*maxval(FCM_SPHERE_RADP)
+ FCM_WALL_RANGE = 1.1*maxval(FCM_SPHERE_RADP)
  
 else
 

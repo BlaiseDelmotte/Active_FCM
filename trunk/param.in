@@ -5,14 +5,14 @@
 !=====================================================================
 ! Numerics
 !=====================================================================
-2           ! Fluid solver                   ! SOLVE_FLUID
+2           ! Fluid solver                   ! SOLVE_FLUID            -> = 2 FOR STOKES WITH FCM
 !---------------------------------------------------------------------
-64       ! Mesh Size                         ! NX
-64      ! Mesh Size                          ! NY
-64        ! Mesh Size                       ! NZ
+64       ! Mesh Size                         ! NX                     -> FCM
+64     ! Mesh Size                           ! NY                     -> FCM
+64        ! Mesh Size                        ! NZ                     -> FCM
 !---------------------------------------------------------------------
-2.5E-4      ! Time step                      ! DTIME
-50000          ! Maximum Cycle number           ! NCYCLEMAX                       
+1.25E-4      ! Time step                     ! DTIME                  -> FCM
+1000          ! Maximum Cycle number         ! NCYCLEMAX              -> FCM
 !---------------------------------------------------------------------
 3           ! Fluid velocity init            ! INIT_FLUID_VELOCITY
 .false.     ! Forcing flag                   ! STEADY
@@ -27,7 +27,7 @@
 .false.      ! Particle trajectory           ! SOLVE_PART 
 3            ! Contact Handling              ! SOLVE_COLLISION
 8           ! Number of particle species     ! NIG
-174        ! Number of particle             ! NPART_FULL
+100         ! Number of particle             ! NPART_FULL              -> FCM
 3           ! Interpolation scheme           ! INTERP_SCHEME
 2           ! Particle position init         ! INIT_PART_POSITION
 1           ! Particle velocity init         ! INIT_PART_VELOCITY
@@ -52,20 +52,20 @@
 !---------------------------------------------------------------------
 ! Outputing
 !---------------------------------------------------------------------
-1000         ! Screen                         ! FOUT0
-10000000         !Fluid Solution                  ! FOUT1
+10        ! Screen                         ! FOUT0                     -> FCM
+10000000         !Fluid Solution                  ! FOUT1              -> FCM
 1000           ! Statistics                     ! FOUT2
-100          ! Particles Solution             ! FOUT3
+100          ! Particles Solution             ! FOUT3                  -> FCM
 1           ! To define                      ! FOUT4
 1           ! To define                      ! FOUT5
 0           ! Ensight format                 ! ENSIGHT
 !=====================================================================
 ! Fluid properties
 !=====================================================================
-6.2832   ! Box size                       ! LXMAX
-6.2832   ! Box size                       ! LYMAX
-6.2832   ! Box size                       ! LZMAX
-1.00        ! Molecular viscosity (m2/s)     ! VISC
+6.283185307179586   ! Box size                       ! LXMAX           -> FCM
+6.283185307179586   ! Box size                       ! LYMAX           -> FCM
+6.283185307179586   ! Box size                       ! LZMAX           -> FCM
+1.00        ! Molecular viscosity (m2/s)     ! VISC                    -> FCM
 1.00        ! Density   (kg/m3)              ! RHOF
 !=====================================================================
 ! Scalar properties

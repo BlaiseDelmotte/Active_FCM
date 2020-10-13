@@ -64,7 +64,6 @@ if (FCM_NSPHERE.gt.0) then
  NPART_END = FCM_NSPHERE
 
  if (FCM_INIT_PART_POS<4) then
- 
   call INIT_ELLIPSOID( NPART_START,&                !Index of 1st particle to initiate
                        NPART_END,&                  !Index of last particle to initiate
                        FCM_RADII(1:NPART_FULL,1),&  !Radii in 1st principal direction
@@ -138,7 +137,8 @@ FCM_XP_NOPER(1:NPART_FULL) = FCM_XP(1:NPART_FULL)
 FCM_YP_NOPER(1:NPART_FULL) = FCM_YP(1:NPART_FULL)
 FCM_ZP_NOPER(1:NPART_FULL) = FCM_ZP(1:NPART_FULL)
 
-!~ if (FCM_SWIMMING>=1) then
+
+ ! Choose orientation depending on the eccentricity of the ellipsoids (if any)
  if ((FCM_NELLIPSOID>0).and.(FCM_ELLIPSOID_SIZE(1)/FCM_ELLIPSOID_SIZE(2)<1)) then
   do IP = 1, NPART_FULL
    FCM_PSWIM(IP,1) = 2.0*( FCM_QUAT(IP,2) * FCM_QUAT(IP,4) &
@@ -153,13 +153,8 @@ FCM_ZP_NOPER(1:NPART_FULL) = FCM_ZP(1:NPART_FULL)
   do IP = 1, NPART_FULL
    FCM_PSWIM(IP,1) = 2.0*( FCM_QUAT(IP,1)**2 + &
                            FCM_QUAT(IP,2)**2 - 0.5d0 )
-                           
-  ! LAST CHANGE : 2013/12/4: Changed signs (-)->(+)       
-  ! LAST CHANGE : 2014/02/10: back to (-)   
    FCM_PSWIM(IP,2) = 2.0*( FCM_QUAT(IP,2)*FCM_QUAT(IP,3) - &
                            FCM_QUAT(IP,1)*FCM_QUAT(IP,4) )
-  ! LAST CHANGE : 2013/12/4: Changed signs (+)->(-) 
-  ! LAST CHANGE : 2014/02/10: back to (+)  
    FCM_PSWIM(IP,3) = 2.0*( FCM_QUAT(IP,2)*FCM_QUAT(IP,4) + &
                            FCM_QUAT(IP,1)*FCM_QUAT(IP,3) )
    if (FCM_USE_QUAT == 0) then                         
@@ -173,7 +168,6 @@ FCM_ZP_NOPER(1:NPART_FULL) = FCM_ZP(1:NPART_FULL)
    end if
   end do
  end if
-!~ end if
 
 if (FCM_NELLIPSOID>0) then
 
@@ -196,7 +190,6 @@ if (FCM_NELLIPSOID>0) then
   
 end if
  
-
 
    
 end subroutine FCM_INITIATION_PARTICLE_POS_ORIENT

@@ -189,7 +189,6 @@ else if(NDIM == 2) then
   DIMS(2) = NPROC / DIMS(1)
  endif
 endif
-
 IPROC = DIMS(1)
 JPROC = DIMS(2)
 
@@ -211,7 +210,6 @@ CPU_INIT = MPI_WTIME()
 !!- Split the geometry
 call P3DFFT_GET_DIMS(ISTART,IEND,ISIZE,1)
 call P3DFFT_GET_DIMS(FSTART,FEND,FSIZE,2)
-
 
 !!- Dimension initiation
 NTOT = FSIZE(1)*FSIZE(2)*FSIZE(3)
@@ -258,12 +256,6 @@ if  (SOLVE_FLUID ==2) then
 
 call FCM_INITIATION
 
- !open(unit=666, file='POS_ORIENT_TIME.dat', status='replace')
- !do I = 1, NPART_FULL
- ! write(666,'(8e17.7)') 0.0, real(I), &
- !                       FCM_XP_NOPER(I), FCM_YP_NOPER(I), FCM_ZP_NOPER(I), &
- !                       FCM_PSWIM(I,1), FCM_PSWIM(I,2), FCM_PSWIM(I,3)
- !end do
 end if
 
  

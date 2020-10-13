@@ -143,12 +143,8 @@ real(kind=8) :: seconds
   if (FCM_BC==2) then
    call FCM_MIRROR_FORCES_X
   end if
-  seconds = MPI_Wtime ( );
-  call FCM_FLUID_PREDICTION  
-  seconds = MPI_Wtime ( )-seconds;
-  if (MYID.eq.0) then
-   print*, 'time_fluid_prediction = ', seconds
-  end if
+  call FCM_FLUID_PREDICTION 
+ 
   call FCM_RATE_OF_STRAIN_FILTER  
   
       
@@ -164,12 +160,7 @@ real(kind=8) :: seconds
   ! Don't take shear into account in the PCG
   FCM_CONSIDER_ROS_SHEAR = 0
 
-  seconds = MPI_Wtime ( );
   call FCM_CONJUGATE_GRADIENT_STRESSLET
-  seconds = MPI_Wtime ( )-seconds;
-  if (MYID.eq.0) then
-   print*, 'time_stresslet = ', seconds
-  end if
 
   FCM_FORCING_X(:,:,:) = 0.0
   FCM_FORCING_Y(:,:,:) = 0.0

@@ -48,11 +48,6 @@ do IB = 1, FCM_BUCKET_NB_TOT
  FCM_BUCKET_HEAD(IB) = -1
 end do
 
-
-!TEMP_M = real(FCM_BUCKET_NB_DIR)
-
-
-
 do IP = 1, NPART_FULL
  FCM_IND = (floor( FCM_XP(IP)/FCM_BUCKET_SIZE_X)) &
          + (floor( FCM_YP(IP)/FCM_BUCKET_SIZE_Y )) * FCM_BUCKET_NB_DIR_X &
@@ -61,11 +56,6 @@ do IP = 1, NPART_FULL
  FCM_BUCKET_PART_LIST(IP) = FCM_BUCKET_HEAD(FCM_IND)
  FCM_BUCKET_HEAD(FCM_IND) = IP
  
-!~  if (MYID==0) then
-!~   Print*,'IP = ',IP
-!~   Print*,'FCM_IND = ',FCM_IND
-!~   Print*, 'FCM_BUCKET_PART_LIST(IP) = ', FCM_BUCKET_PART_LIST(IP)
-!~  end if
  
 end do
 
