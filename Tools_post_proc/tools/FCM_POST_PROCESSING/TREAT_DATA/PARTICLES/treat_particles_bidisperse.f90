@@ -33,10 +33,7 @@ real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS_NOPER
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_VEL
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_ROT
-real(kind=8), allocatable, dimension(:,:,:) :: FCM_ORIENT
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_PSWIM
-real(kind=8), allocatable, dimension(:,:,:) :: FCM_P2
-real(kind=8), allocatable, dimension(:,:,:) :: FCM_P3
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_SIJ
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_RADII
 
@@ -45,13 +42,10 @@ real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS_TIME
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_POS_NOPER_TIME
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_VEL_TIME
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_ROT_TIME
-real(kind=8), allocatable, dimension(:,:,:) :: FCM_ORIENT_TIME
 real(kind=8), allocatable, dimension(:,:,:,:) :: FCM_ROT_MAT_TIME
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_PSWIM_TIME
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_PSWIM_TIME_SPH
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_PSWIM_TIME_SPH_PMEAN
-real(kind=8), allocatable, dimension(:,:,:) :: FCM_P2_TIME
-real(kind=8), allocatable, dimension(:,:,:) :: FCM_P3_TIME
 real(kind=8), allocatable, dimension(:,:,:) :: FCM_SIJ_TIME
 
 real(kind=8), allocatable, dimension(:,:) :: MEAN_PSWIM_TIME
@@ -252,18 +246,6 @@ if (TREAT_VEL==1) then
  allocate( FCM_ROT_TIME(NB_DUMP_FILES_PART+1,NPART,3) )
 end if
 
-!~ if ((TREAT_CORREL_ORIENT==1).or.(TREAT_CORREL_POS==1)) then
- if (USE_QUAT==1) then
-  allocate( FCM_ORIENT(NPART,4,1) )
-  allocate( FCM_ORIENT_TIME(NB_DUMP_FILES_PART+1,NPART,4) )
- else
-  allocate( FCM_P2(NPART,3,1) )
-  allocate( FCM_P2_TIME(NB_DUMP_FILES_PART+1,NPART,3) )
-  allocate( FCM_P3(NPART,3,1) )
-  allocate( FCM_P3_TIME(NB_DUMP_FILES_PART+1,NPART,3) )
- end if
- allocate( FCM_ROT_MAT_TIME(NB_DUMP_FILES_PART+1,NPART,3,3) )
-!~ end if
 
 
 if (TREAT_STRESS==1) then
@@ -329,22 +311,6 @@ if (TREAT_VEL==1) then
  FCM_ROT_TIME(NB_DUMP_FILES_PART+1,:,:) = FCM_ROT(:,:,1)
 end if
 
-!~ if ((TREAT_CORREL_ORIENT==1).or.(TREAT_CORREL_POS==1)) then
- if (USE_QUAT==1) then
-  FILENAME='FCM_PART_ORIENT.end'
-  call READ_VAR_MPIIO(NPART,4,1,FCM_ORIENT,FILENAME,ERR_FILE_ORIENT)
-  
-  FCM_ORIENT_TIME(NB_DUMP_FILES_PART+1,:,:) = FCM_ORIENT(:,:,1)
- else
-  FILENAME='FCM_PART_P2.end'
-  call READ_VAR_MPIIO(NPART,3,1,FCM_P2,FILENAME,ERR_FILE_P2)
-  FILENAME='FCM_PART_P3.end'
-  call READ_VAR_MPIIO(NPART,3,1,FCM_P3,FILENAME,ERR_FILE_P3)
-  
-  FCM_P2_TIME(NB_DUMP_FILES_PART+1,:,:) = FCM_P2(:,:,1)
-  FCM_P3_TIME(NB_DUMP_FILES_PART+1,:,:) = FCM_P3(:,:,1)
- end if
-!~ end if
 
 if (TREAT_STRESS==1) then
  FILENAME='FCM_PART_STRESSLET.end'
@@ -407,22 +373,6 @@ do IND=1,NB_DUMP_FILES_PART
  end if
  
  
-!~  if ((TREAT_CORREL_ORIENT==1).or.(TREAT_CORREL_POS==1)) then
-  if (USE_QUAT==1) then
-   write(FILENAME,10101)'FCM_PART_ORIENT_t',trim(FILE_EXT),'.bin'
-   call READ_VAR_MPIIO(NPART,4,1,FCM_ORIENT,FILENAME,ERR_FILE_ORIENT)
-   
-   FCM_ORIENT_TIME(IND,:,:) = FCM_ORIENT(:,:,1)
-  else
-   write(FILENAME,10101)'FCM_PART_P2_t',trim(FILE_EXT),'.bin'
-   call READ_VAR_MPIIO(NPART,3,1,FCM_P2,FILENAME,ERR_FILE_P2)
-   write(FILENAME,10101)'FCM_PART_P3_t',trim(FILE_EXT),'.bin'
-   call READ_VAR_MPIIO(NPART,3,1,FCM_P3,FILENAME,ERR_FILE_P3)
-   
-   FCM_P2_TIME(IND,:,:) = FCM_P2(:,:,1)
-   FCM_P3_TIME(IND,:,:) = FCM_P3(:,:,1)
-  end if
-!~  end if
  
  if (TREAT_STRESS==1) then 
   write(FILENAME,10101)'FCM_PART_STRESSLET_t',trim(FILE_EXT),'.bin'
@@ -609,25 +559,6 @@ end if
 !~ 																								FCM_PSWIM_TIME_SPH_PMEAN(:,PART_START_1:PART_END_1,:), &
 !~ 																								PINF)
 
-! if (NELLIPSOID>0) then
-!  call NEMATIC_ORDER(NB_DUMP_FILES_PART+1,NPART,TIME_VEC,FCM_PSWIM_TIME)
-! end if
-!~ 
-!~ 
-!~ 
-!~ 
-!~  if ((TREAT_CORREL_POS==1).or.(TREAT_CORREL_ORIENT==1)) then
-!~   if (USE_QUAT==1) then
-!~    call ROT_MAT_TIME(NB_DUMP_FILES_PART+1, NPART, FCM_ORIENT_TIME, FCM_ROT_MAT_TIME)
-!~   else
-!~    call ROT_MAT_TIME_VECTORS( NB_DUMP_FILES_PART+1, &
-!~                               NPART, &
-!~                               FCM_PSWIM_TIME, &
-!~                               FCM_P2_TIME, &
-!~                               FCM_P3_TIME, &
-!~                               FCM_ROT_MAT_TIME )
-!~   end if
-!~  end if
  
 if ((TREAT_CORREL_POS==1).and.(TREAT_VEL==1)&
                          .and.(TREAT_CORREL_ORIENT==1)) then 
