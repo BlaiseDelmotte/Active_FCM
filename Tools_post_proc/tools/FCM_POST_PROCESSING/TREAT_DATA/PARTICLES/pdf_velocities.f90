@@ -7,6 +7,7 @@ subroutine PDF_VELOCITIES(NSAVES, &
                           SAVE_START, &
                           PART_START, &
                           PART_END, &
+                          FCM_RADIUS, &
                           VEL)
 
 !!====================================================================
@@ -27,6 +28,8 @@ integer, intent(in) :: NSAVES
 integer, intent(in) :: SAVE_START
 ! Number of swimmers
 integer, intent(in) :: PART_START, PART_END
+! Particle radius
+real(kind=8), intent(in) :: FCM_RADIUS
 ! Particle velocities
 real(kind=8), dimension(NSAVES,PART_END-PART_START+1,3), intent(in) :: VEL
 
@@ -46,6 +49,8 @@ real(kind=8), allocatable, dimension(:) :: RANGE_VELY
 real(kind=8), allocatable, dimension(:) :: PDF_VELZ
 real(kind=8), allocatable, dimension(:) :: RANGE_VELZ
 
+! Particle velocities normalized by their radius
+real(kind=8), dimension(NSAVES,PART_END-PART_START+1,3) :: VEL_RAD
 !- Norm of velocities
 real(kind=8),  dimension(NSAVES - SAVE_START + 1,PART_END-PART_START+1) :: VELNORM
 
@@ -76,15 +81,19 @@ print*,' '
 !=====================================================================
 ! 1. COMPUTE NORM OF VELOCITIES
 !=====================================================================
+
+! Normalize velocity by particle radius
+VEL_RAD = VEL / FCM_RADIUS
+
 print*, 'COMPUTE NORM OF VELOCITIES'
 K = 0
 do IND = SAVE_START, NSAVES
  K = K+1
  do I = 1, PART_END-PART_START+1
  
-  VELNORM(K,I) = dsqrt( VEL(IND,I,1)**2 &
-                        + VEL(IND,I,2)**2 &
-                        + VEL(IND,I,3)**2 )
+  VELNORM(K,I) = dsqrt( VEL_RAD(IND,I,1)**2 &
+                        + VEL_RAD(IND,I,2)**2 &
+                        + VEL_RAD(IND,I,3)**2 )
  
  end do
 end do
@@ -94,19 +103,19 @@ print*, 'COMPUTE NORM OF VELOCITIES---> OK'
 ! 2. DEFINE DISCRETIZATION OF PDF
 !=====================================================================
 print*, 'DISCRETIZE RANGE OF VELOCITIES FOR PDF'
-DVELNORM = 0.01
-DVELX = 0.01
-DVELY = 0.01
-DVELZ = 0.01
+DVELNORM = 0.05
+DVELX = 0.05
+DVELY = 0.05
+DVELZ = 0.05
 
 N_STEP_VELNORM = ceiling(( maxval(VELNORM) &
                          - minval(VELNORM) )/DVELNORM)
-N_STEP_VELX = ceiling(( maxval(VEL(SAVE_START:NSAVES,1:PART_END-PART_START+1,1)) &
-                      - minval(VEL(SAVE_START:NSAVES,1:PART_END-PART_START+1,1)) )/DVELX)
-N_STEP_VELY = ceiling(( maxval(VEL(SAVE_START:NSAVES,1:PART_END-PART_START+1,2)) &
-                      - minval(VEL(SAVE_START:NSAVES,1:PART_END-PART_START+1,2)) )/DVELY)
-N_STEP_VELZ = ceiling(( maxval(VEL(SAVE_START:NSAVES,1:PART_END-PART_START+1,3)) &
-                      - minval(VEL(SAVE_START:NSAVES,1:PART_END-PART_START+1,3)) )/DVELZ)
+N_STEP_VELX = ceiling(( maxval(VEL_RAD(SAVE_START:NSAVES,1:PART_END-PART_START+1,1)) &
+                      - minval(VEL_RAD(SAVE_START:NSAVES,1:PART_END-PART_START+1,1)) )/DVELX)
+N_STEP_VELY = ceiling(( maxval(VEL_RAD(SAVE_START:NSAVES,1:PART_END-PART_START+1,2)) &
+                      - minval(VEL_RAD(SAVE_START:NSAVES,1:PART_END-PART_START+1,2)) )/DVELY)
+N_STEP_VELZ = ceiling(( maxval(VEL_RAD(SAVE_START:NSAVES,1:PART_END-PART_START+1,3)) &
+                      - minval(VEL_RAD(SAVE_START:NSAVES,1:PART_END-PART_START+1,3)) )/DVELZ)
 
 print*,'N_STEP_VELNORM ,N_STEP_VELX ,N_STEP_VELY ,N_STEP_VELZ = '
 print*, N_STEP_VELNORM ,N_STEP_VELX ,N_STEP_VELY ,N_STEP_VELZ
@@ -126,17 +135,17 @@ do J = 2, N_STEP_VELNORM
  RANGE_VELNORM(J) = RANGE_VELNORM(J-1) + DVELNORM
 end do
 
-RANGE_VELX(1) = minval(VEL(SAVE_START:NSAVES,:,1)) 
+RANGE_VELX(1) = minval(VEL_RAD(SAVE_START:NSAVES,:,1))
 do J = 2, N_STEP_VELX
  RANGE_VELX(J) = RANGE_VELX(J-1) + DVELX
 end do
 
-RANGE_VELY(1) = minval(VEL(SAVE_START:NSAVES,:,2)) 
+RANGE_VELY(1) = minval(VEL_RAD(SAVE_START:NSAVES,:,2))
 do J = 2, N_STEP_VELY
  RANGE_VELY(J) = RANGE_VELY(J-1) + DVELY
 end do
 
-RANGE_VELZ(1) = minval(VEL(SAVE_START:NSAVES,:,3)) 
+RANGE_VELZ(1) = minval(VEL_RAD(SAVE_START:NSAVES,:,3))
 do J = 2, N_STEP_VELZ
  RANGE_VELZ(J) = RANGE_VELZ(J-1) + DVELZ
 end do
@@ -161,9 +170,9 @@ do IND = SAVE_START, NSAVES
  K = K+1
  do I = 1, PART_END-PART_START+1
   IND_NORM = floor( ( VELNORM(K,I)-RANGE_VELNORM(1) )/DVELNORM ) + 1
-  IND_X = floor( ( VEL(IND,I,1)-RANGE_VELX(1) )/DVELX ) + 1
-  IND_Y = floor( ( VEL(IND,I,2)-RANGE_VELY(1) )/DVELY ) + 1
-  IND_Z = floor( ( VEL(IND,I,3)-RANGE_VELZ(1) )/DVELZ ) + 1
+  IND_X = floor( ( VEL_RAD(IND,I,1)-RANGE_VELX(1) )/DVELX ) + 1
+  IND_Y = floor( ( VEL_RAD(IND,I,2)-RANGE_VELY(1) )/DVELY ) + 1
+  IND_Z = floor( ( VEL_RAD(IND,I,3)-RANGE_VELZ(1) )/DVELZ ) + 1
   
   if (isnan(VELNORM(K,I))) then
      print*,'VELNORM(K,I) = ', VELNORM(K,I)
@@ -182,25 +191,25 @@ do IND = SAVE_START, NSAVES
   end if
   
   if ((IND_X<1).or.(IND_X>N_STEP_VELX)) then
-   print*, 'VEL(IND,I,1) = ', VEL(IND,I,1)
+   print*, 'VEL(IND,I,1) = ', VEL_RAD(IND,I,1)
    print*, 'RANGE_VELX(1) = ', RANGE_VELX(1)
-   print*, '( VEL(IND,I,1)-RANGE_VELX(1) )/DVELX = ', ( VEL(IND,I,1)-RANGE_VELX(1) )/DVELX
+   print*, '( VEL(IND,I,1)-RANGE_VELX(1) )/DVELX = ', ( VEL_RAD(IND,I,1)-RANGE_VELX(1) )/DVELX
    print*, 'IND_X = ', IND_X
    read(*,*)
   end if
   
   if ((IND_Y<1).or.(IND_Y>N_STEP_VELY)) then
-   print*, 'VEL(IND,I,2) = ', VEL(IND,I,2)
+   print*, 'VEL(IND,I,2) = ', VEL_RAD(IND,I,2)
    print*, 'RANGE_VELY(1) = ', RANGE_VELY(1)
-   print*, '( VEL(IND,I,2)-RANGE_VELY(1) )/DVELY = ', ( VEL(IND,I,2)-RANGE_VELY(1) )/DVELY
+   print*, '( VEL(IND,I,2)-RANGE_VELY(1) )/DVELY = ', ( VEL_RAD(IND,I,2)-RANGE_VELY(1) )/DVELY
    print*, 'IND_Y = ', IND_Y
    read(*,*)
   end if
   
   if ((IND_Z<1).or.(IND_Z>N_STEP_VELZ)) then
-   print*, 'VEL(IND,I,3) = ', VEL(IND,I,3)
+   print*, 'VEL(IND,I,3) = ', VEL_RAD(IND,I,3)
    print*, 'RANGE_VELZ(1) = ', RANGE_VELZ(1)
-   print*, '( VEL(IND,I,3)-RANGE_VELZ(1) )/DVELZ = ', ( VEL(IND,I,3)-RANGE_VELZ(1) )/DVELZ
+   print*, '( VEL(IND,I,3)-RANGE_VELZ(1) )/DVELZ = ', ( VEL_RAD(IND,I,3)-RANGE_VELZ(1) )/DVELZ
    print*, 'IND_Z = ', IND_Z
    read(*,*)
   end if

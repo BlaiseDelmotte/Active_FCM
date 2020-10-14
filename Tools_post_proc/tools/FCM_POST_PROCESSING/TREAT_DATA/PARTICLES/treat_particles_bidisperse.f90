@@ -381,7 +381,7 @@ do IND=1,NB_DUMP_FILES_PART
  call READ_VAR_MPIIO(NPART,3,1,FCM_POS,FILENAME,ERR_FILE_POS) 
  write(FILENAME,10101)'FCM_PART_SWIM_t',trim(FILE_EXT),'.bin'
  call READ_VAR_MPIIO(NPART,3,1,FCM_PSWIM,FILENAME,ERR_FILE_SWIM)
- 
+
  FCM_POS_TIME(IND,:,:) = FCM_POS(:,:,1)
  FCM_PSWIM_TIME(IND,:,:) = FCM_PSWIM(:,:,1)
 
@@ -497,12 +497,14 @@ end if
                       SAVE_START, &
                       PART_START_1, &
                       PART_END_1, &
+                      FCM_RADII(PART_START_1,1,1), &
                       FCM_VEL_TIME(:,PART_START_1:PART_END_1,:) )
   if (PART_START_2>0) then                    
    call PDF_VELOCITIES(NB_DUMP_FILES_PART+1, &
                       SAVE_START, &
                       PART_START_2, &
                       PART_END_2, &
+                      FCM_RADII(PART_START_2,1,1), &
                       FCM_VEL_TIME(:,PART_START_2:PART_END_2,:) )   
   end if
   if (TREAT_DIFF==1) then
