@@ -217,7 +217,6 @@ NGLOB = NX * NY * NZ
 FACTOR = 1.0D0/real(NGLOB)
 
 
-
 !!- Create ghost cell if needed
 if(NGHTCELL>0.or.SOLVE_PART) then
 
@@ -332,12 +331,6 @@ if (MYID == 0) then
  write(*,10700)100.*NCYCLE/NCYCLEMAX,CPU_ELAPSED
 end if
 
-
-!!- print the initial particle position
-!if(SOLVE_PART) then
-!  NOUT2 = 0
-!  call SAVE_PARTICLE(NOUT2)
-!end if
 
 CONT     = .true.
 CONT_CPU = .true.
