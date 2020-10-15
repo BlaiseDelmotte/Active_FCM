@@ -55,11 +55,7 @@ FCM_DIR_MIN = -FCM_EIJ
 call FCM_L2NORM(FCM_RES_ROS,FCM_L2RES_ROS)
 NORM_EIJ = FCM_L2RES_ROS
 
-!~ print*, 'FCM_L2RES_ROS= ',FCM_L2RES_ROS
-!~ read(*,*)
 TOL = FCM_TOL_L2RES_ROS*NORM_EIJ
- !print*, 'TOL= ',TOL
- !read(*,*)
 
 ! Keep looping as long as relative residual is smaller than TOL
 do while ((FCM_L2RES_ROS.gt.TOL).and.(K.lt.FCM_MAX_ITER))
@@ -81,9 +77,6 @@ do while ((FCM_L2RES_ROS.gt.TOL).and.(K.lt.FCM_MAX_ITER))
  
  ! Zeros ROS
  FCM_EIJ(:,:) = 0.0
- 
-!~  
-!~   print*, 'FCM_DIR_MIN = ', FCM_DIR_MIN
 
  call FCM_DISTRIB_STRESSLET(FCM_ACTIVATE_STRESSLET,FCM_DIR_MIN)
  
@@ -91,69 +84,31 @@ do while ((FCM_L2RES_ROS.gt.TOL).and.(K.lt.FCM_MAX_ITER))
   call FCM_MIRROR_FORCES_X
  end if
  
-!~  print*, 'maxval(FCM_FORCING_X),maxval(FCM_FORCING_Y),maxval(FCM_FORCING_Z) = ', maxval(FCM_FORCING_X),maxval(FCM_FORCING_Y),maxval(FCM_FORCING_Z) 
  
  call FCM_FLUID_PREDICTION
  
  call FCM_RATE_OF_STRAIN_FILTER
-
-!~   if (MYID==0) then
-!~         print*,'K= ', K
-!~         print*,'maxval(FCM_EIJ)', maxval(abs(FCM_EIJ))
-!~   !     read(*,*)
-!~    end if
-
  
  call FCM_PROD_SCAL(FCM_RES_ROS,FCM_RES_ROS,FCM_INC_DIR_BETA)
  
-!~   print*, 'FCM_INC_DIR_BETA= ', FCM_INC_DIR_BETA
- 
  call FCM_PROD_SCAL(FCM_EIJ,FCM_DIR_MIN,FCM_INC_DIR_ALPHA)
- 
-!~   print*, 'FCM_INC_DIR_ALPHA= ', FCM_INC_DIR_ALPHA
  
  FCM_INC_DIR_ALPHA = FCM_INC_DIR_BETA/FCM_INC_DIR_ALPHA
  
-!~   print*, 'FCM_INC_DIR_ALPHA= ', FCM_INC_DIR_ALPHA
-
- 
  FCM_SIJ = FCM_SIJ + FCM_INC_DIR_ALPHA*FCM_DIR_MIN
  
-    
- 
  FCM_RES_ROS = FCM_RES_ROS - FCM_INC_DIR_ALPHA*FCM_EIJ
- 
-!~   print*, 'FCM_RES_ROS = ', FCM_RES_ROS
 
 ! Compute max of L2 norm
  call FCM_L2NORM(FCM_RES_ROS,FCM_L2RES_ROS)  
- !print*, 'FCM_L2RES_ROS = ', FCM_L2RES_ROS
- !read(*,*)
- 
  
  call FCM_PROD_SCAL(FCM_RES_ROS,FCM_RES_ROS,FCM_INC_DIR_ALPHA)
   
  FCM_INC_DIR_BETA = FCM_INC_DIR_ALPHA/FCM_INC_DIR_BETA
  
-  
-!~  print*, 'FCM_INC_DIR_BETA = ', FCM_INC_DIR_BETA
- 
  FCM_DIR_MIN = FCM_RES_ROS + FCM_INC_DIR_BETA*FCM_DIR_MIN
  
-!~  print*, 'FCM_DIR_MIN = ', FCM_DIR_MIN
- 
-!~    print*, 'FCM_SIJ = ', FCM_SIJ
-  
-  
-!~   read(*,*)
-
- 
- 
 end do
-
-!if (MYID==0) then
-! print*,' NITE_STRESSLET = ', K
-!end if
 
    
 end subroutine FCM_CONJUGATE_GRADIENT_STRESSLET
