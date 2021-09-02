@@ -43,7 +43,6 @@ use FCM_PART_VARIABLE  !- FCM particles variables
 use FCM_FORCING_VARIABLE  !- FCM forcing variables
 
 
-use PARTICLE_PARALLEL
 
 use MPI_STRUCTURES
 
@@ -157,14 +156,6 @@ call INIT_RUN
 
 
 
-if(SOLVE_PART) CPU_PART(:)=ZERO
-
-
-!!- Define the particle data structure
-call MPI_PART_TYPE
-
-
-
 
 NCYCLE = 1 !- Initiation of time cycle
 TIME = 0.  !- Initiation of time
@@ -218,7 +209,7 @@ FACTOR = 1.0D0/real(NGLOB)
 
 
 !!- Create ghost cell if needed
-if(NGHTCELL>0.or.SOLVE_PART) then
+if(NGHTCELL>0) then
 
 ! Create MPI structures for ghost cells MPI-exchange
  call CREATE_MPI_VECTOR
@@ -235,8 +226,6 @@ end if
 !!--------------------------------------------------------------------
 call ALLOCATE_ARRAYS
 
-!!- Initiation particle CPU passing if needed
-if(SOLVE_PART) call INITIATION_EXCHANGE
 
 !!--------------------------------------------------------------------
 !! 1.6. Mesh, wavenumbers, integrating factor and aliasing control
@@ -288,19 +277,10 @@ end if
 
 
 
-!!- Particle initiation
-if(SOLVE_PART) then
- call INITIATION_PARTICLE_POSITION
- call INITIATION_PARTICLE_VELOCITY
- if(SOLVE_SCALAR) call INITIATION_PARTICLE_SCALAR
-end if
-
-
 
 !!- Time-averaging initiation
 if(STAT_TIME) then
  if(LEVEL0_STFLU) MEAN_TIME_FLUID = ZERO
- if(LEVEL0_STPAR) MEAN_TIME_PART = ZERO
  if(LEVEL0_STSCL) MEAN_TIME_SCL = ZERO
  NEVEN = 0
 end if
@@ -383,33 +363,10 @@ do while(CONT)
  if(LEVEL0_STSCL) call STAT_SCALAR(NCYCLE,TIME)
 
 
-!!--------------------------------------------------------------------
-!! 2.3 Particle Statistics 
-!!--------------------------------------------------------------------
-!!- Here all Lagrangian variables are at n+1
- if(LEVEL0_STPAR) call STAT_PARTICLE(NCYCLE,TIME)
-
 !!- Event count for time-averaged statistics
  if((LEVEL0_STFLU.or.LEVEL0_STSCL.or.LEVEL0_STPAR).and.STAT_TIME)  NEVEN = NEVEN + 1
 
  end if
-
-
-
-
-!!====================================================================
-!! 3. Discrete Particle Simulation
-!!====================================================================
-!!
-!!--------------------------------------------------------------------
-!! 3.1. Particle tracking
-!!--------------------------------------------------------------------
- if(SOLVE_PART) call PARTICLE_TRACKING(NCYCLE)
-
-!!--------------------------------------------------------------------
-!! 3.2. Particle-particle collisions
-!!--------------------------------------------------------------------
- if(SOLVE_COLLISION==1) call COLLISION(NCYCLE,TIME)
 
 
 
@@ -534,15 +491,6 @@ if((NCYCLEMAX>=FOUT0).and.(mod(NCYCLE,FOUT0)==0).and.(MYID==0)) then
 end if
 
 
-!!- Print particles for post-processing
-!if((NCYCLEMAX>=FOUT0).and.(mod(NCYCLE,NCYCLEMAX/FOUT0)==0).and.(SOLVE_PART)) then
-!  call SAVE_PARTICLE(NOUT2)
-!  NOUT2 = NOUT2 + 1
-!end if
-
-
-
-
 end do
 
 
@@ -567,7 +515,6 @@ if(MYID==0)write(*,*) ' Time loop ended !!!'
 
  if(LEVEL0_STSCL) call STAT_SCALAR(NCYCLEMAX,TIME)
 
- if(LEVEL0_STPAR) call STAT_PARTICLE(NCYCLEMAX,TIME)
 
 !!- Event count for time-averaged statistics
  if((LEVEL0_STFLU.or.LEVEL0_STSCL.or.LEVEL0_STPAR).and.STAT_TIME)  NEVEN = NEVEN + 1
@@ -633,13 +580,6 @@ if(SOLVE_SCALAR) call SAVE_SCALAR(IDUMMY)
 
 
 !!--------------------------------------------------------------------
-!! 6.3. Save particle position and velocity
-!!--------------------------------------------------------------------
-!!- Print final particle solution for restart
-IDUMMY = -99
-if(SOLVE_PART) call SAVE_PARTICLE(IDUMMY)
-
-!!--------------------------------------------------------------------
 !! 6.4. Particle velocities and orientations
 !!--------------------------------------------------------------------
 !!- Print final particle kinematics for restart
@@ -652,23 +592,6 @@ if (SOLVE_FLUID ==2)  then
  ! call FCM_SAVE_PARTICLE_DYNAMICS(IDUMMY) 
  !end if
 end if
-
-
-
-if(SOLVE_PART) then
-do J=1, NIG
- if(MYID==0) write(*,10702)J,NBR_EXCHANGE(J),NPMAX_CPU(J)
-end do
-
-!!- check the number of particles
-if(SOLVE_PART .and. DEBUG) then
- do J = 1, NIG
-  call ISUMCPU(NPART_LOC(J),IDUMMY)
-  if(MYID==0) write(*,10701)J,IDUMMY
- end do
-end if
-
-end if !- If:(SOLVE_PART) 
 
 
 
