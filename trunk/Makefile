@@ -13,7 +13,6 @@ mod_fluid_variable.o \
 mod_forcing.o \
 mod_geometric_variable.o \
 mod_param_phys.o\
-mod_particle_parallel.o \
 mod_rhs_variable.o \
 mod_scalar_variable.o \
 mod_statistics.o \
@@ -21,8 +20,7 @@ mod_work_arrays.o \
 mod_collision.o \
 mod_random_var.o \
 MPI_structures.o \
-utilities_cpu.o \
-exchange_part.o
+utilities_cpu.o
 
 
 FLUOBJS	= \
@@ -102,9 +100,6 @@ fcm_initiation_particle_velocity.o \
 fcm_initiation_phase_shift.o \
 fcm_initiation_rep_wall_magnitude.o \
 fcm_inv_3_3.o \
-fcm_kinematic_contact_handling_no_bucket.o\
-fcm_kinematic_contact_handling_bucket_mono.o\
-fcm_kinematic_contact_handling_bucket_mono_arg.o\
 fcm_KS_second_step.o\
 fcm_l2norm.o \
 fcm_mirror_forces_x.o \
@@ -131,15 +126,6 @@ fcm_velocity_filter.o \
 fcm_write_info.o \
 fcm_zero_field_variable.o\
 fcm_zero_part_variable.o\
-#fcm_kinematic_contact_handling_para_arg.o\
-
-
-PAROBJS	= \
-adv_particle_position.o \
-adv_particle_velocity.o \
-boundary_particle.o\
-collision_detection.o\
-collision_interaction.o\
 dgqt.o\
 destsv.o \
 ell_full2eig.o\
@@ -150,27 +136,11 @@ ell_pair_intersec.o\
 ell_pair_separate.o\
 ellu_pt_near_far.o\
 ell_line_proj.o\
-filtering_fluid.o\
-gaspart_transfer.o \
-initiation_particle_position.o \
-initiation_particle_velocity.o \
-initiation_particle_scalar.o \
 init_ellipsoid.o \
 init_ellipsoid_2D.o \
-interpH.o \
-interp_lag1.o\
-interp_lag2.o\
-interp_lag3.o\
-interp_lag4.o \
 intersec_ellipsoid.o \
-collision.o \
-particle_tracking.o \
-print_lagfunction.o\
 seed_ellipsoid.o \
 seed_ellipsoid_2D.o \
-stat_particle.o \
-save_particle.o \
-save_particle_time.o
 
 SCLOBJS	= \
 initiation_scalar.o\
@@ -181,7 +151,7 @@ spec3d_scalar.o
 
 
 MOD	= *.mod
-OBJS	= $(MODOBJS) $(FLUOBJS) $(FCMOBJS) $(PAROBJS) $(SCLOBJS) 
+OBJS	= $(MODOBJS) $(FLUOBJS) $(FCMOBJS) $(SCLOBJS) 
 
 EXEC    = ns3d
 

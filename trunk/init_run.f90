@@ -46,7 +46,6 @@ integer :: I, N
 !! In case of FCM (i.e. Stokes flow) scalar and DPS are switch off
 if(SOLVE_FLUID == 2) then
  SOLVE_SCALAR = .false.
- SOLVE_PART = .false.
 
 !!- no forcing because no turbulence !
  STEADY = .false.
@@ -73,7 +72,7 @@ end if
 
 !!- Ghost cells
 NGHTCELL = 0
-if(SOLVE_PART.and.SOLVE_FLUID>0) then
+if(SOLVE_FLUID>0) then
  NGHTCELL = 2
 end if
 
@@ -106,12 +105,6 @@ if(MYID==0) then
  open(unit=UNIT_INFO(3), file='cpu.info', action='write', status='replace')
 
 
-!- CPU loading  
-if(SOLVE_PART) then
- open(unit=UNIT_INFO(4), file='partcpu_load.stat', action='write', status='replace')
- write(UNIT_INFO(4),*)'# t  [Np max/CPU] [Np min/CPU] [var(Np/CPU)]  '
-end if
-
 
  !- Opening file
  open(unit=UNIT_INFO(5), file='numerics.info', action='write', status='replace')
@@ -129,10 +122,6 @@ end if
 ISAVEFLUID = 2
 
 !! 
-!! ISAVEPART = 1: Multiple binary files
-!!           = 2: Direct access file
-!!           = 3: Using of MPI I/O
-ISAVEPART = 1
 
 !! ISAVEFORCE= 1: Multiple binary files
 !!           = 2: Direct access file
@@ -165,65 +154,6 @@ IDFORCE = -2
 ISET = 0
 IY = 0
 IV(:) = 0
-
-
-!!- Size of particle's array
-if(SOLVE_PART)  then
-
-NPCPU_UNIF = int(NPART_FULL/NPROC)
-
-
-
-if(NPCPU_UNIF <= 100) then
-
- NPMAX_LOC = 2*NPART_FULL
- NPEXCH_MAX = NPART_FULL
-
-elseif(NPCPU_UNIF <= 1000) then
-
- NPMAX_LOC = int(3*NPCPU_UNIF)
- NPEXCH_MAX = 1000
-
-elseif(NPCPU_UNIF <= 10000) then
-
-! NPMAX_LOC = int(1.5*NPCPU_UNIF)
- NPMAX_LOC = int(2.5*NPCPU_UNIF)
-! NPEXCH_MAX = 600
- NPEXCH_MAX = int(0.05*NPCPU_UNIF)
-
-elseif(NPCPU_UNIF <= 100000) then
-
- NPMAX_LOC = int(1.5*NPCPU_UNIF)
-!
-! NPEXCH_MAX = 300
- NPEXCH_MAX = int(0.10*NPMAX_LOC)
-
-else
-
- NPMAX_LOC = int(1.5*NPCPU_UNIF)
-!
-! NPEXCH_MAX = 500
- NPEXCH_MAX = int(0.02*NPMAX_LOC)
-
-end if
-
-!!- Array size of echanged particles limited to 5%
-!!NPEXCH_MAX = int(0.05*NPMAX_LOC)
-!!NPEXCH_MAX = NPMAX_LOC - NPCPU_UNIF
-
-
-
-if(MYID==0) write(*,*) ' NPCPU_UNIF =',NPCPU_UNIF
-if(MYID==0) write(*,*) '  NPMAX_LOC =',NPMAX_LOC
-if(MYID==0) write(*,*) ' NPEXCH_MAX =',NPEXCH_MAX
-
-!!- Scalar case !!!AP - Attention, ce n'est plus vrai pour les collisions!!!!
-!if(NPROC == 1) then
-! NPMAX_LOC = NPART_FULL
-! NPEXCH_MAX = 0
-!end if
-
-end if
 
 
 
@@ -266,11 +196,6 @@ end if
 !!====================================================================
 !! 4. Statistics
 !!====================================================================
-if(.not.SOLVE_PART)  then
- LEVEL0_STPAR = .false.
- LEVEL1_STPAR = .false.
- LEVEL2_STPAR = .false.
-end if
 
 if(.not.SOLVE_SCALAR)  then
  LEVEL0_STSCL = .false.
@@ -284,12 +209,6 @@ else
  LEVEL0_STFLU=.false.
 end if
 
-if(LEVEL1_STPAR.or.LEVEL2_STPAR.or.LEVEL3_STPAR) then
- LEVEL0_STPAR=.true.
-else
- LEVEL0_STPAR=.false.
-end if
-
 if(LEVEL1_STSCL.or.LEVEL2_STSCL) then
  LEVEL0_STSCL=.true.
 else
@@ -301,97 +220,14 @@ if(SOLVE_FLUID==0) then
  LEVEL0_STFLU = .false.
  LEVEL0_STSCL = .false.
  
-! LEVEL1_STPAR = .false.
-! LEVEL2_STPAR = .false.
 end if
 
 
-if(LEVEL0_STFLU.or.LEVEL0_STPAR.or.LEVEL0_STSCL) then
+if(LEVEL0_STFLU.or.LEVEL0_STSCL) then
  NSTAT = 100
 else
  NSTAT = 1
 end if
-
-
-!!--------------------------------------------------------------------
-!! Lagrangian correlation
-!!--------------------------------------------------------------------
-!~ FOUT3 = 1
-DIMLGR = 1
-
-!!- Cycle where the Lagrangian function are computed
-!! Be careful the Lagrangian stat will starts
-!! at NT0(i)*FOUT2 (frequency of statistics ..)
-NT0(1) = 1
-NT0(2) = 200
-NT0(3) = 500
-
-
-if(LEVEL2_STPAR) then
-
- DIMLGR = 1200
-
-!!- Overestimation of length of lagrangian function
- DIMLGR = int(NCYCLEMAX/FOUT2)
- 
-
- if(DIMLGR>NCYCLEMAX) DIMLGR = NCYCLEMAX
-
-
- if(MYID==0) write(*,*)'NBLGRMAX=',NBLGRMAX,' DIMLGR=',DIMLGR
-
- allocate(  RPX_LOC(DIMLGR,NIG,NBLGRMAX),  RPY_LOC(DIMLGR,NIG,NBLGRMAX),  RPZ_LOC(DIMLGR,NIG,NBLGRMAX))
- allocate(RFAPX_LOC(DIMLGR,NIG,NBLGRMAX),RFAPY_LOC(DIMLGR,NIG,NBLGRMAX),RFAPZ_LOC(DIMLGR,NIG,NBLGRMAX))
-
- RPX_LOC(:,:,:) = ZERO
- RPY_LOC(:,:,:) = ZERO
- RPZ_LOC(:,:,:) = ZERO
-
- RFAPX_LOC(:,:,:) = ZERO
- RFAPY_LOC(:,:,:) = ZERO
- RFAPZ_LOC(:,:,:) = ZERO
-
-
- if(SOLVE_SCALAR) then
-  allocate(      RTP_LOC(DIMLGR,NIG,NBLGRMAX),     RTFAP_LOC(DIMLGR,NIG,NBLGRMAX))
-  allocate(RTFAPVFAP_LOC(DIMLGR,NIG,NBLGRMAX), RVFAPTFAP_LOC(DIMLGR,NIG,NBLGRMAX))
-
-  RTP_LOC(:,:,:) = ZERO
-  RTFAP_LOC(:,:,:) = ZERO
-  RTFAPVFAP_LOC(:,:,:) = ZERO
-  RVFAPTFAP_LOC(:,:,:) = ZERO
-  
- end if !- SOLVE_SCALAR
-
-
- if(FILTERING) then
-  allocate(RDUFAPDUFAP_LOC(DIMLGR,NIG,NBLGRMAX),&
-           RDVFAPDVFAP_LOC(DIMLGR,NIG,NBLGRMAX),&
-	   RDWFAPDWFAP_LOC(DIMLGR,NIG,NBLGRMAX) )
-
-  allocate(RDUFAPUFAP_LOC(DIMLGR,NIG,NBLGRMAX),&
-           RDVFAPVFAP_LOC(DIMLGR,NIG,NBLGRMAX),&
-           RDWFAPWFAP_LOC(DIMLGR,NIG,NBLGRMAX) )
- 
-  allocate(RDUFAPUP_LOC(DIMLGR,NIG,NBLGRMAX),&
-           RDVFAPVP_LOC(DIMLGR,NIG,NBLGRMAX),&
-	   RDWFAPWP_LOC(DIMLGR,NIG,NBLGRMAX) )
- 
-  RDUFAPDUFAP_LOC(:,:,:) = ZERO
-  RDVFAPDVFAP_LOC(:,:,:) = ZERO
-  RDWFAPDWFAP_LOC(:,:,:) = ZERO
-  RDUFAPUFAP_LOC(:,:,:) = ZERO
-  RDVFAPVFAP_LOC(:,:,:) = ZERO
-  RDWFAPWFAP_LOC(:,:,:) = ZERO
-  RDUFAPUP_LOC(:,:,:) = ZERO
-  RDVFAPVP_LOC(:,:,:) = ZERO
-  RDWFAPWP_LOC(:,:,:) = ZERO
- 
- end if
-
-end if
-
-
 
 
 

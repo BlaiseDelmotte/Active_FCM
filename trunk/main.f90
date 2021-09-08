@@ -7,8 +7,7 @@ program ns3d
 
 !!====================================================================
 !! Numerical code solving the 3-dimensionnal Navier-Stokes equations
-!! using a spectral decomposition. The code is coupled with a 
-!! Lagrangian particle tracking module.
+!! using a spectral decomposition. The code is coupled with FCM
 !!
 !! The numerical features are:
 !!  * Fluid: 
@@ -23,9 +22,8 @@ program ns3d
 !!       - Integrating factor (diffusive terms)
 !!
 !!  * Particles: 
-!!       - fixed points, fluid elements, inertial particles
+!!       - FCM
 !!       - 3rd order Adam-Bashforth (time-advancing)
-!!       - Integrating factor (diffusive terms)
 !!====================================================================
 
 use DNS_DIM            !- Dimension
@@ -153,8 +151,6 @@ if (SOLVE_FLUID ==2)  call FCM_READPARAM
 !! 1.3 Run initiation
 !!--------------------------------------------------------------------
 call INIT_RUN
-
-
 
 
 NCYCLE = 1 !- Initiation of time cycle
@@ -364,7 +360,7 @@ do while(CONT)
 
 
 !!- Event count for time-averaged statistics
- if((LEVEL0_STFLU.or.LEVEL0_STSCL.or.LEVEL0_STPAR).and.STAT_TIME)  NEVEN = NEVEN + 1
+ if((LEVEL0_STFLU.or.LEVEL0_STSCL).and.STAT_TIME)  NEVEN = NEVEN + 1
 
  end if
 
@@ -517,9 +513,9 @@ if(MYID==0)write(*,*) ' Time loop ended !!!'
 
 
 !!- Event count for time-averaged statistics
- if((LEVEL0_STFLU.or.LEVEL0_STSCL.or.LEVEL0_STPAR).and.STAT_TIME)  NEVEN = NEVEN + 1
+ if((LEVEL0_STFLU.or.LEVEL0_STSCL).and.STAT_TIME)  NEVEN = NEVEN + 1
 
- if(LEVEL0_STFLU.or.LEVEL0_STPAR.or.LEVEL0_STSCL) then
+ if(LEVEL0_STFLU.or.LEVEL0_STSCL) then
    if(MYID==0) call PRINT_LASTCYCLE(NCYCLE)
  end if
 
@@ -528,9 +524,6 @@ if(MYID==0)write(*,*) ' Time loop ended !!!'
 !! 5.2. Print time-averaged statistics
 !!--------------------------------------------------------------------
 if(STAT_TIME) call PRINT_TIMESTAT(NCYCLE)
-
-
-if(LEVEL2_STPAR) call PRINT_LAGFUNCTION
 
 
 

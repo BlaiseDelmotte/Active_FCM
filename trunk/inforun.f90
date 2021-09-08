@@ -42,8 +42,6 @@ write(UNIT_INFO(I),*)' EQUATIONS SOLVED DURING THE SIMULATION :'
 write(UNIT_INFO(I),*)'====================================================================='
 if(SOLVE_FLUID>0)write(UNIT_INFO(I),*)'   --> Fluid momentum'
 if(SOLVE_SCALAR) write(UNIT_INFO(I),*)'   --> Passive scalar transport'
-if(SOLVE_PART  ) write(UNIT_INFO(I),*)'   --> Particle momentum'
-if(SOLVE_PART  ) write(UNIT_INFO(I),*)'   --> Particle position'
 write(UNIT_INFO(I),*)
 write(UNIT_INFO(I),*)
 write(UNIT_INFO(I),*)'====================================================================='
@@ -138,88 +136,6 @@ end if
 end if
 
 
-if(SOLVE_PART) then
-write(UNIT_INFO(I),*)
-write(UNIT_INFO(I),*)'Particles:'
-write(UNIT_INFO(I),*)'----------'
-if(INTERP_SCHEME == 1) then
- write(UNIT_INFO(I),*) '1st order Lagrangian interpolation'
-elseif(INTERP_SCHEME == 2) then
- write(UNIT_INFO(I),*) '2nd order Lagrangian interpolation'
-elseif(INTERP_SCHEME == 3) then
- write(UNIT_INFO(I),*) '3rd order Lagrangian interpolation'
-elseif(INTERP_SCHEME == 4) then
- write(UNIT_INFO(I),*) 'SFM interpolation scheme'
-else
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(I),*)'!!         WRONG PARAMETER         !!'
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(I),*)'!! file   : inforun.f90            !!'
- write(UNIT_INFO(I),*)'!! problem: INTERP_SCHEME>4        !!'
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- stop
-end if 
-
-if(INIT_PART_POSITION == 0.or.INIT_PART_POSITION == 1) then
- write(UNIT_INFO(I),*) 'Initial particle position --> Uniformaly distributed'
-elseif(INIT_PART_POSITION == 2) then
- write(UNIT_INFO(I),*) 'Initial particle position --> Random'
-elseif(INIT_PART_POSITION == 3) then
- write(UNIT_INFO(I),*) 'Initial particle position --> Read in file: part.ini'
-elseif(INIT_PART_POSITION == 4) then
- write(UNIT_INFO(I),*) 'Initial particle position --> Injection at edge (x,y)'
-else
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(I),*)'!!         WRONG PARAMETER         !!'
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(I),*)'!! file   : inforun.f90            !!'
- write(UNIT_INFO(I),*)'!! problem: INIT_PART_POSITION>3   !!'
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- stop
-end if 
-
-if(INIT_PART_VELOCITY == 0) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Zero'
-elseif(INIT_PART_VELOCITY == 1) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Equal to fluid'
-elseif(INIT_PART_VELOCITY == 2) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Random'
-elseif(INIT_PART_VELOCITY == 3) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Read in file: part.ini'
-elseif(INIT_PART_VELOCITY == 4) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Injection at the edge (x,y)'
-else
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(I),*)'!!         WRONG PARAMETER         !!'
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(I),*)'!! file   : inforun.f90            !!'
- write(UNIT_INFO(I),*)'!! problem: INIT_PART_VELOCITY>4   !!'
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- stop
-end if 
-
-if(SOLVE_SCALAR) then
-if(INIT_PART_SCALAR == 0) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Zero'
-elseif(INIT_PART_SCALAR == 1) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Equal to fluid'
-elseif(INIT_PART_SCALAR == 2) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Random ... not done'
-elseif(INIT_PART_SCALAR == 3) then
- write(UNIT_INFO(I),*) 'Initial particle velocity --> Read in file: traj.ini'
-else
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(I),*)'!!         WRONG PARAMETER         !!'
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(I),*)'!! file   : inforun.f90            !!'
- write(UNIT_INFO(I),*)'!! problem: INIT_PART_VELOCITY>3   !!'
- write(UNIT_INFO(I),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- stop
-end if
-end if 
-
-end if
-
 write(UNIT_INFO(I),*)
 write(UNIT_INFO(I),*)
 write(UNIT_INFO(I),*)'====================================================================='
@@ -255,40 +171,11 @@ write(UNIT_INFO(I),1612)'  Imposed gradient, dT/dy = ',GRAD_SCL,' [kg/m/s]'
 write(UNIT_INFO(I),*)
 write(UNIT_INFO(I),1605)'     Prandtl (or Schmidt) = ',VISC/DIFF_SCL
 write(UNIT_INFO(I),*)
-
-
 end if
 
-if(SOLVE_PART) then
-write(UNIT_INFO(I),*)
-write(UNIT_INFO(I),*)'Particle properties:'
-write(UNIT_INFO(I),*)'--------------------'
-do J = 1, NIG
- if(PARTDEF(J) == 0) then
- write(UNIT_INFO(I),1606)'Particle:',J,'  ==> Motionless'
- elseif(PARTDEF(J) == 1) then
- write(UNIT_INFO(I),1606)'Particle:',J,'  ==> Fluid element'
- elseif(PARTDEF(J) == 2) then
- write(UNIT_INFO(I),1606)'Particle:',J,'  ==> Solid particle'
- end if
- write(UNIT_INFO(I),1609) '--    Np = ',NPART_FULL
- write(UNIT_INFO(I),1612) '--    dp = ',DPART(J),' [m]'
- write(UNIT_INFO(I),1612) '--  rhop = ',RHOP(J),' [kg/m3]'
- write(UNIT_INFO(I),1612) '--  taup = ',RHOP(J)*DPART(J)**2/18./(VISC*RHOF),' [s]'
- if(SOLVE_SCALAR) then
-  write(UNIT_INFO(I),1612)'--   Cpp = ',CP_PART(J),' [J/kg/K]'
-  write(UNIT_INFO(I),1612)'-- taupt = ',RHOP(J)*DPART(J)**2/18./(VISC*RHOF)&
-                                          *3./2.*VISC/DIFF_SCL*CP_PART(J)/CP_SCL,' [s]'
- end if
- write(UNIT_INFO(I),*)
-end do
-end if
-write(UNIT_INFO(I),*)
-write(UNIT_INFO(I),*)
 
 
-
-if(LEVEL0_STFLU.or.LEVEL0_STPAR) then
+if(LEVEL0_STFLU) then
 write(UNIT_INFO(I),*)'====================================================================='
 write(UNIT_INFO(I),*)'STATISTICS'
 write(UNIT_INFO(I),*)'====================================================================='
@@ -345,49 +232,9 @@ end if
 if(LEVEL0_STSCL) then
  write(UNIT_INFO(I),*)' Statistics on scalar'
  write(UNIT_INFO(I),*)' --------------------'
-if(LEVEL1_STPAR) then
- write(UNIT_INFO(I),*)' -- Mean and fluctuating'
- write(UNIT_INFO(I),*)'  + Mean and variance'
- write(UNIT_INFO(I),*)'  + Scalalr-velocity cross correlation'
- write(UNIT_INFO(I),*)
-end if
-if(LEVEL2_STPAR) then
- write(UNIT_INFO(I),*)' -- Dissipation and gradients'
- write(UNIT_INFO(I),*)
-end if
-
 end if
 
 
-if(LEVEL0_STPAR) then
- write(UNIT_INFO(I),*)' Statistics over the particle'
- write(UNIT_INFO(I),*)' -------------------------'
-if(READSTAT) then
- write(UNIT_INFO(I),1611) ' Number of stored event: NEVEN=',NEVEN
-end if
- write(UNIT_INFO(I),*)
-if(LEVEL1_STPAR) then
- write(UNIT_INFO(I),*)' -- Mean and fluctuating motion'
- write(UNIT_INFO(I),*)'  + Mean velocity'
- write(UNIT_INFO(I),*)'  + Fluctuating motion'
- write(UNIT_INFO(I),*)'  + Particle kinetic stress tensor'
- write(UNIT_INFO(I),*)'  + Mean drag coeffecient and relaxation time'
- write(UNIT_INFO(I),*)
-end if
-if(LEVEL2_STPAR) then
- write(UNIT_INFO(I),*)' -- Lagrangian correlation function'
- write(UNIT_INFO(I),1608)'  + maximum record of correlation function=',DIMLGR
- write(UNIT_INFO(I),*)
-end if
-if(LEVEL3_STPAR) then
- write(UNIT_INFO(I),*)' -- Spatial distribution of particles'
- write(UNIT_INFO(I),1608)'  + Grid used=',NXCP
- write(UNIT_INFO(I),*)
-end if
-
-write(UNIT_INFO(I),*)
-write(UNIT_INFO(I),*)
-end if
 
 !!====================================================================
 1600 format (1x,A,I4,A,I4,A,I4)

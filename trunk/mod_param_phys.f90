@@ -57,20 +57,6 @@ integer :: ENSIGHT_OUT !- Ensight's format
 
 
 
-!!--------------------------------------------------------------------
-!! Particle parameters
-!!--------------------------------------------------------------------
-integer :: INTERP_SCHEME      !- Interpolation scheme
-integer :: INIT_PART_POSITION !- Particle position initiation
-integer :: INIT_PART_VELOCITY !- Particle velocity initiation
-integer :: INIT_PART_SCALAR   !- Particle scalar initiation
-
-integer,      dimension(:), allocatable :: PARTDEF !- Particle kind
-real(kind=8), dimension(:), allocatable :: RHOP    !- Particle density
-real(kind=8), dimension(:), allocatable :: DPART   !- Particle density
-real(kind=8), dimension(:), allocatable :: GRAVITY !- Particle density
-real(kind=8), dimension(:), allocatable :: CP_PART !- Specific heat of particles
-
 
 
 end module param_phys

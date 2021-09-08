@@ -88,69 +88,8 @@ if(LEVEL0_STSCL) then
   end if
 end if
 
+end if !if MYID == 0
 
-
-
-!!======================================================================
-!! 3. Open files for particles
-!!======================================================================
-if(LEVEL0_STPAR) then 
-
- if(LEVEL1_STPAR) then
-  do I =1, NIG
-
-   NBFILE = NBFILE + 1
-   write(FILENAME,10600)'part_l1_p',I,'.stat'
-   open(unit=500+I, file=trim(FILENAME), status='replace')
-   write(500+I,20101)
-   if(MYID==0) write(*,10700)trim(FILENAME)
-
-   NBFILE = NBFILE + 1
-   write(FILENAME,10600)'part_l1_qp_p',I,'.stat'
-   open(unit=520+I, file=trim(FILENAME), status='replace')
-   write(520+I,20103)
-   if(MYID==0) write(*,10700)trim(FILENAME)
-
-   if(SOLVE_SCALAR) then
-    NBFILE = NBFILE + 1
-    write(FILENAME,10600)'part_l1_scl_p',I,'.stat'
-    open(unit=560+I, file=trim(FILENAME), status='replace')
-    write(560+I,20105)
-    if(MYID==0) write(*,10700)trim(FILENAME)
-   end if
-
-   if(SOLVE_COLLISION > 0) then
-    NBFILE = NBFILE + 1
-    write(FILENAME,10600)'part_l1_col_p',I,'.stat'
-    open(unit=580+I, file=trim(FILENAME), status='replace')
-    write(580+I,20107)
-    if(MYID==0) write(*,10700)trim(FILENAME)
-   end if
-
-
-  end do
- end if
-
-
-! if(LEVEL2_STPAR) then
-!  do I =1, NIG
-!   NBFILE = NBFILE + 1
-!   write(FILENAME,10600)'part_l2_Rp_p',I,'.stat'
-!   open(unit=600+I, file=trim(FILENAME), status='replace')
-!   if(SOLVE_SCALAR) then 
-!    write(600+I,20106)
-!   else
-!    write(600+I,20104)
-!   end if 
-!   if(MYID==0) write(*,10700)trim(FILENAME)
-!  end do
-! end if
-
-
- end if
-
-
-end if
 
 
 
@@ -159,7 +98,7 @@ if(MYID==0) write(*,10800) 'Files opened --> ',NBFILE
 !!====================================================================
 !! 4. CLOSE FILES
 !!====================================================================
-else
+else !if FLAG
 
 if(MYID==0) then
 

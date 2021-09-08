@@ -30,10 +30,6 @@ use CHECK_CPU          !- Variable for cpu time checking
 use CPUTIME_CONTROL
 use FCM_PART_VARIABLE  !- FCM particles variables
 use FCM_FORCING_VARIABLE  !- FCM forcing variables
-
-
-use PARTICLE_PARALLEL
-
 use MPI_STRUCTURES
 
 use P3DFFT

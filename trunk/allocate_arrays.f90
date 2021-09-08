@@ -21,7 +21,6 @@ use SCALAR_VARIABLE
 use FCM_PART_VARIABLE
 use FCM_FORCING_VARIABLE
 
-use PARTICLE_PARALLEL
 
 implicit none
 
@@ -162,35 +161,6 @@ if(STAT_TIME.and.LEVEL4_STFLU) then
  MEAN_RVXLOC(:) = ZERO
  MEAN_RWXLOC(:) = ZERO
  
-end if
-
-!!=====================================================================
-!! 2. Allocate arrays for the Particles
-!!=====================================================================
-!! The size of particle's array 10% larger than uniform distribution of
-!! particle for each CPU.
-!! To avoid a crash a specific subroutine check the number particles 
-!! per CPU before MPI exchange.
-!!---------------------------------------------------------------------
-
-!!---------------------------------------------------------------------
-!! 2.1. Arrays for point particles
-!!---------------------------------------------------------------------
-if(SOLVE_PART) then
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-allocate(NPART_LOC(NIG))
-allocate(PART(NPMAX_LOC,NIG))
-allocate(NBR_EXCHANGE(NIG))
-NBR_EXCHANGE(:) = 0
-
-allocate(NPMAX_CPU(NIG))
-NPMAX_CPU(:) = 0
-
-allocate(NPMIN_CPU(NIG))
-NPMIN_CPU(:) = 1000000
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 end if
 
 !!---------------------------------------------------------------------
@@ -392,32 +362,6 @@ if (SOLVE_FLUID ==2)  then
 
 
 end if
-
-!!---------------------------------------------------------------------
-!! X.X. Arrays for statistics
-!!---------------------------------------------------------------------
-if(LEVEL0_STPAR) then
- allocate(MEAN_PART_LOC(NSTAT,NIG))
- allocate(MEAN_PART(NSTAT,NIG))
- if(STAT_TIME) allocate(MEAN_TIME_PART(NSTAT,NIG))
- 
- 
- if(LEVEL3_STPAR) then
-   RATIOCP = 4.0
-   NXCP = int(ISIZE(1)/RATIOCP)
-   NYCP = int(ISIZE(2)/RATIOCP)
-   NZCP = int(ISIZE(3)/RATIOCP)
-   allocate(CONCP(NXCP,NYCP,NZCP))
-   
-   NPDFCP = 60
-   allocate(PDFCP_LOC(NPDFCP,NIG))
-   PDFCP_LOC(:,:) = ZERO
- end if
-  
-end if
-
-
-
 
 !!=====================================================================
 !! 3. Allocate arrays for scalar

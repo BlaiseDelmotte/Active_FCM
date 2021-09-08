@@ -77,49 +77,18 @@ real(kind=8) :: TWOPI
 double complex :: ICMPL
 
 
-!!- Particle's arrays
-integer :: NIG       !- Particle class number
-
-!!- Number of particles per CPU for uniforme distribution
-integer :: NPCPU_UNIF
-
 !!- Number of particles
 integer :: NPART_FULL     
-
-!!- maximum exchanged particles per CPU     
-integer :: NPEXCH_MAX
-
-!!- maximum number of particle in a cpu   
-integer :: NPMAX_LOC
-integer, dimension(:), allocatable :: NPMAX_CPU
-integer, dimension(:), allocatable :: NPMIN_CPU
-
-
-!!- Local number of particle
-integer, dimension(:), allocatable :: NPART_LOC
 
 
 !- Size of array containing statistics
 integer :: NSTAT
 
-!- Number of lagrangian correlation
-integer, parameter :: NBLGRMAX = 3
-
-integer,dimension(NBLGRMAX) :: NT0
-
-integer :: NTLGRMAX !!- ca sert probablement a rien
 
 
 !- Length of Lagrangian time-correlation
 integer :: DIMLGR
 
-
-
-
-!- Max Number of particle used to compute the lagrangian correlation
-integer :: MAXPARTLAG
-
-integer :: DIMLGRMAX
 
 
 !- Flag for time integration
@@ -138,13 +107,6 @@ integer, dimension(5) :: UNIT_INFO !- unit number
 !!            = 3: MPI_FILE_WRITE_ORDERED
 !!            = 4: MPI I/O (recommended)
 integer :: ISAVEFLUID
-
-!! 
-!! ISAVEPART = 1: Multiple binary files (one per CPU)
-!!           = 2: Direct access file
-!!           = 3: MPI_FILE_WRITE_ORDERED
-!!           = 4: MPI I/O (recommended)
-integer :: ISAVEPART
 
 
 !!====================================================================
@@ -184,10 +146,8 @@ integer :: NFILEOUT
 integer :: SOLVE_FLUID
 
 
-!- Flag for Lagrangian particle tracking
-logical :: SOLVE_PART
 
-!- Flag for Lagrangian particle collision 
+!- Flag for particle collision 
 integer :: SOLVE_COLLISION
 
 !- Flag for passive scalar equation
@@ -205,11 +165,6 @@ logical :: LEVEL2_STFLU !- Divergence, dissipation
 logical :: LEVEL3_STFLU !- Skewness, Flatness, PDF of fluid velocity & gradients
 logical :: LEVEL4_STFLU !- Two points statistics (Spatial correlation)
 logical :: LEVEL5_STFLU !- Eulerian time-correlation
-
-logical :: LEVEL0_STPAR !- Statistics or not
-logical :: LEVEL1_STPAR !- One point statistics (mean, Reynolds stress, 3rd & 4th-order)
-logical :: LEVEL2_STPAR !- Lagrangian functiond
-logical :: LEVEL3_STPAR !- Spatial distribution
 
 
 logical :: LEVEL0_STSCL !- Statistics or not

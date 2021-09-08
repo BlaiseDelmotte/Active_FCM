@@ -37,14 +37,6 @@ real(kind=8), dimension(3,3,4) :: DUIDXJ
 
 
 
-!- Global array containing statistics on the particles
-real(kind=8), dimension(:,:), allocatable :: MEAN_PART_LOC
-real(kind=8), dimension(:,:), allocatable :: MEAN_PART
-
-!- Time-averaged statistics on the particles
-real(kind=8), dimension(:,:), allocatable :: MEAN_TIME_PART
-
-
 !integer :: NBLGRMAX
 
 !- 

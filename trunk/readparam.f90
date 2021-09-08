@@ -75,9 +75,7 @@ read(200,*) INIT_SCALAR
 !! 4. Particle numerics
 !!====================================================================
 read(200,*)            ! comment line
-read(200,*) SOLVE_PART !- Particle tracking
 read(200,*) SOLVE_COLLISION !- Contact Handling
-read(200,*) NIG        !- Number of particle's classes
 read(200,*) NPART_FULL !- Number of particle
 
 !- Interpolation scheme
@@ -85,19 +83,7 @@ read(200,*) NPART_FULL !- Number of particle
 !               = 2 : Lagrangian polynomial 2nd order
 !               = 3 : Lagrangian polynomial 3rd order
 !               = 4 : SFM
-read(200,*) INTERP_SCHEME      !- Interpolation scheme
 
-read(200,*) INIT_PART_POSITION !- Particle position initiation
-read(200,*) INIT_PART_VELOCITY !- Particle velocity initiation
-read(200,*) INIT_PART_SCALAR   !- Particle scalar initiation
-
-
-
-allocate(RHOP(NIG))
-allocate(DPART(NIG))
-allocate(PARTDEF(NIG))
-allocate(GRAVITY(NIG))
-allocate(CP_PART(NIG))
 
 
 !!====================================================================
@@ -120,10 +106,6 @@ read(200,*)              ! comment line
 read(200,*) LEVEL1_STSCL !- One point statistics (mean, Reynolds stress, 3rd & 4th-order)
 read(200,*) LEVEL2_STSCL !- Dissipation and gradients
 read(200,*)              ! comment line
-                         !- Level of statistics for the particle
-read(200,*) LEVEL1_STPAR !- One point statistics (mean, Reynolds stress, 3rd & 4th-order)
-read(200,*) LEVEL2_STPAR !- Lagrangian functiond
-read(200,*) LEVEL3_STPAR !- Spatial distribution
 
 !- Outputing parameters
 !---------------------
@@ -167,22 +149,6 @@ read(200,*) CP_SCL   !- Specific heat of scalar
 read(200,*) GRAD_SCL !- Mean gradient of scalar
 
 
-!!====================================================================
-!! 8. Particle properties
-!!====================================================================
-read(200,*) ! comment line
-read(200,*) ! comment line
-read(200,*) ! comment line
-do I=1, NIG
- read(200,*) PARTDEF(I) !- Particle definition
- read(200,*) DPART(I)   !- Diameter
- read(200,*) RHOP(I)    !- Density
- read(200,*) GRAVITY(I) !- Gravity
- read(200,*) CP_PART(I) !- "Specific heat"
- read(200,*)            ! comment line
-end do
-
-
 close(200)
 
 
@@ -194,19 +160,6 @@ if(FOUT2>NCYCLEMAX) FOUT2 = NCYCLEMAX
 
 !- Statistic printing
 if(FOUT3>NCYCLEMAX) FOUT3 = NCYCLEMAX
-
-!- maximum number of particle class
-if(NIG>20) then
- write(UNIT_INFO(1),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(1),*)'!!            ERROR'
- write(UNIT_INFO(1),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(UNIT_INFO(1),*)'!!    NIG=',NIG,' > 20'
- write(UNIT_INFO(1),*)'!!'
- write(UNIT_INFO(1),*)'!! Problem for files managing see openclose.f90'
- write(UNIT_INFO(1),*)'!!'
- write(UNIT_INFO(1),*)'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- stop
-end if
 
 
 if(MYID==0) write(*,*) 'Parameters reading --> OK'

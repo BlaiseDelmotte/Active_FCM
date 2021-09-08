@@ -25,18 +25,6 @@ real(kind=8), dimension(8) :: CPU_FLUID
 !! CPU_FLUID(8) --> FFT
 
 
-!!- CPU time for the particle tracking
-real(kind=8), dimension(7) :: CPU_PART
-!! CPU_PART(1) --> All particle steps
-!! CPU_PART(2) --> Position Time-advancing 
-!! CPU_PART(3) --> Velocity Time-advancing 
-!! CPU_PART(4) --> Interpolation
-!! CPU_PART(5) --> Boundary condition (including particle passing)
-!! CPU_PART(6) --> Statistics
-!! CPU_PART(7) --> Save particles
-
-
-
 
 !!- CPU time for run initiation
 real(kind=8) :: CPU_INITIATION
