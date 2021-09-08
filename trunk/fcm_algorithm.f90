@@ -63,29 +63,24 @@ real(kind=8) :: seconds
   call FCM_COMPUTE_GAUSSIAN_SUPPORT  
  end if
  
- if (SOLVE_COLLISION >= 3) then
+ !- Use forces/torques for collisions
+ if (SOLVE_COLLISION > 0) then
   !- Establish linked-list for nf and collision interactions
   call FCM_COMPUTE_BUCKET_LISTS
   
-  !- Use forces/torques for collisions
-  if (SOLVE_COLLISION == 3) then
-  
-   if (FCM_NELLIPSOID>0) then
-    !- GB for ellipsoids
-    call FCM_GB_SHIFTED_UNIAXIAL
-   else 
-   
-    !- isotropic barrier for spheres
-    call FCM_BARRIER_FORCE
-!~ 
-    !- Add Repulsive wall force if walls along x
-    if (FCM_BC==2) then
-     call FCM_REPULSIVE_WALL
-    end if
+  if (FCM_NELLIPSOID>0) then
+   !- GB for ellipsoids
+   call FCM_GB_SHIFTED_UNIAXIAL
+  else 
+   !- isotropic barrier for spheres
+   call FCM_BARRIER_FORCE
+   !- Add Repulsive wall force if walls along x
+   if (FCM_BC==2) then
+    call FCM_REPULSIVE_WALL
+   end if
     
-   end if !if (FCM_NELLIPSOID>0) then
-  end if !if (SOLVE_COLLISION == 3) then
- end if !if (SOLVE_COLLISION >= 3) then
+  end if !if (FCM_NELLIPSOID>0) then
+ end if !if (SOLVE_COLLISION >0) then
  
  if (maxval(abs(FCM_EXT_FORCE))>0) then
   call FCM_ADD_MONOPOLE_FORCING

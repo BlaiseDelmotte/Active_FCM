@@ -77,16 +77,16 @@ if (FCM_NSWIM(2)>0) then
 end if   
 
 
-if (SOLVE_COLLISION == 3) then
+if (SOLVE_COLLISION > 0) then
  !- Establish linked-list for nf and collision interactions
  call FCM_COMPUTE_BUCKET_LISTS
-   !- isotropic barrier for spheres
-   call FCM_BARRIER_FORCE
-   !- Add Repulsive wall force if walls along x
-   if (FCM_BC==2) then
-    call FCM_REPULSIVE_WALL
-   end if
-end if !if (SOLVE_COLLISION == 3) then
+ !- isotropic barrier for spheres
+ call FCM_BARRIER_FORCE
+ !- Add Repulsive wall force if walls along x
+ if (FCM_BC==2) then
+  call FCM_REPULSIVE_WALL
+ end if
+end if !if (SOLVE_COLLISION > 0) then
 
 
 if (maxval(abs(FCM_EXT_FORCE))>0) then

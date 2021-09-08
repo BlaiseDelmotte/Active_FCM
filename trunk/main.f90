@@ -443,12 +443,11 @@ end if
   
  else
   if ((FCM_FLOW_TYPE==1).and.(FCM_RUNTUMBLE==0)) then
-   if ((NCYCLE == 2).and.(SOLVE_COLLISION<4)) FLAG_TSCHEME = 2
+   if (NCYCLE == 2) FLAG_TSCHEME = 2
 
-   if ((NCYCLE == 3).and.(SOLVE_COLLISION<4)) FLAG_TSCHEME = 3
+   if (NCYCLE == 3) FLAG_TSCHEME = 3
 
-   ! test with AB4
-   if ((NCYCLE == 4).and.(SOLVE_COLLISION<4)) FLAG_TSCHEME = 4
+   if (NCYCLE == 4) FLAG_TSCHEME = 4
    
   !- If Brownian Motion-->> only use Forward Euler Scheme
   else if ((FCM_FLOW_TYPE==2).or.(FCM_RUNTUMBLE==1)) then
