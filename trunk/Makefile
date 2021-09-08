@@ -64,7 +64,6 @@ fcm_adv_particle_orientation_pswim_only.o \
 fcm_algorithm.o \
 fcm_algorithm_brownian.o \
 fcm_barrier_force.o \
-fcm_barrier_force_no_bucket.o \
 fcm_bucket_distribution.o \
 fcm_bucket_allocations.o \
 fcm_bucket_build_map.o \
